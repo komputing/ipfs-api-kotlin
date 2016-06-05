@@ -8,7 +8,7 @@ class Add(val ipfs: IPFS) {
 
     val adapter: JsonAdapter<NamedHash> by lazy { ipfs.moshi.adapter(NamedHash::class.java) }
 
-    fun file(file: File, name: String = "file", filename: String = name): NamedHash {
+    @JvmOverloads fun file(file: File, name: String = "file", filename: String = name): NamedHash {
 
         return addGeneric {
             val body = RequestBody.create(MediaType.parse("application/octet-stream"), file)
@@ -17,7 +17,7 @@ class Add(val ipfs: IPFS) {
 
     }
 
-    fun string(file: String, name: String = "string", filename: String = name): NamedHash {
+    @JvmOverloads fun string(file: String, name: String = "string", filename: String = name): NamedHash {
 
         return addGeneric {
             val body = RequestBody.create(MediaType.parse("application/octet-stream"), file)
