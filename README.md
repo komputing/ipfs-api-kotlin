@@ -27,7 +27,7 @@ val multihash = IPFS().add.string("test-string").Hash
 
 ###get a string
 ```kotlin
-val content=IPFS().get.cat(multihash)
+val content = IPFS().get.cat(multihash)
 ```
 
 ###get commit from version
@@ -39,14 +39,10 @@ val commit = IPFS().info.version().Commit
 
 # Use it with java
 
-you can also use it from java - but it is more verbose there as e.g. we have no default parameters. 
+you can also use it from java - but it is more verbose:
 
 ```java
-final IPFS ipfs = new IPFS("http://127.0.0.1:5001/api/v0/",
-                            new OkHttpClient.Builder().build(),
-                            new Moshi.Builder().build());
-  
-final String multihash = ipfs.getAdd().string("test-string", "string", "string").getHash();
+final String multihash = new IPFS().getAdd().string("test-string").getHash();
 ```
 
 # Dependencies 
