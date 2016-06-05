@@ -12,7 +12,7 @@ import java.io.File
 class TestInfo() {
 
     val server = MockWebServer();
-    val ipfs: IPFS by lazy { IPFS(OkHttpClient.Builder().build(), server.url("").toString()) }
+    val ipfs: IPFS by lazy { IPFS(base_url =  server.url("").toString()) }
 
     @Before
     fun runBeforeEveryTest() {

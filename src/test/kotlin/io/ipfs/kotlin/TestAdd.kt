@@ -12,7 +12,7 @@ import java.io.File
 class TestAdd() {
 
     val server = MockWebServer();
-    val ipfs: IPFS by lazy { IPFS(OkHttpClient.Builder().build(), server.url("").toString()) }
+    val ipfs: IPFS by lazy { IPFS(base_url = server.url("").toString()) }
 
     @Before
     fun runBeforeEveryTest() {
@@ -47,7 +47,7 @@ class TestAdd() {
         server.enqueue(MockResponse().setBody("{\"Hash\":\"hashprobe\",\"Name\":\"nameprobe\"}"));
 
         // invoke
-        val addString = ipfs.add.file(File.createTempFile("temptestfile",null))!!
+        val addString = ipfs.add.file(File.createTempFile("temptestfile", null))!!
 
         // assert
         assertThat(addString.Hash).isEqualTo("hashprobe")
