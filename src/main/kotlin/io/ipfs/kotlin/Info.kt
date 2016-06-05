@@ -13,7 +13,7 @@ class Info(val ipfs: IPFS) {
 
         val response = ipfs.okHttpClient.newCall(request).execute();
         val adapter: JsonAdapter<VersionInfo> = ipfs.moshi.adapter(VersionInfo::class.java)
-        return adapter.fromJson(response.body().string())
+        return adapter.fromJson(response.body().source())
     }
 
 }
