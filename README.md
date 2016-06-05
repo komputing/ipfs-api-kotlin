@@ -20,16 +20,22 @@ dependencies {
 
 # Use it with kotlin
 
-add a string
+### add a string
 ```kotlin
 val multihash = IPFS().add.string("test-string").Hash
 ```
 
-get commit from version
+###get a string
+```kotlin
+val content=IPFS().get.cat(multihash)
+```
 
+###get commit from version
 ```kotlin
 val commit = IPFS().info.version().Commit
 ```
+
+
 
 # Use it with java
 
