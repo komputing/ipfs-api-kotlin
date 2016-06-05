@@ -8,6 +8,7 @@ open class IPFS(val base_url: String = "http://127.0.0.1:5001/api/v0/",
                 val moshi: Moshi = Moshi.Builder().build()) {
 
     val add by lazy { Add(this) }
+    val get by lazy { Get(this) }
     val info by lazy { Info(this) }
 
 }
