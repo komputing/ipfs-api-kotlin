@@ -22,13 +22,13 @@ dependencies {
 
 add a string
 ```kotlin
-  val multihash = IPFS().add.string("test-string").Hash
+val multihash = IPFS().add.string("test-string").Hash
 ```
 
 get commit from version
 
 ```kotlin
-  val commit = IPFS().info.version().Commit
+val commit = IPFS().info.version().Commit
 ```
 
 # Use it with java
@@ -36,11 +36,11 @@ get commit from version
 you can also use it from java - but it is more verbose there as e.g. we have no default parameters. 
 
 ```java
- final IPFS ipfs = new IPFS("http://127.0.0.1:5001/api/v0/",
+final IPFS ipfs = new IPFS("http://127.0.0.1:5001/api/v0/",
                             new OkHttpClient.Builder().build(),
                             new Moshi.Builder().build());
   
-  final String multihash = ipfs.getAdd().string("test-string", "string", "string").getHash();
+final String multihash = ipfs.getAdd().string("test-string", "string", "string").getHash();
 ```
 
 # Dependencies 
