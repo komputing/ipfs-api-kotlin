@@ -1,11 +1,13 @@
 package io.ipfs.kotlin
 
+import com.squareup.moshi.JsonAdapter
 import com.squareup.moshi.Moshi
+import io.ipfs.kotlin.model.MessageWithCode
 import okhttp3.*
 
-open class IPFSConnection @JvmOverloads constructor(val base_url: String = "http://127.0.0.1:5001/api/v0/",
-                                                    val okHttpClient: OkHttpClient = OkHttpClient.Builder().build(),
-                                                    val moshi: Moshi = Moshi.Builder().build()) {
+open class IPFSConnection constructor(val base_url: String, val okHttpClient: OkHttpClient, val moshi: Moshi) {
+
+    var lastError: MessageWithCode? = null
 
     fun callURL(url: String): ResponseBody {
         val request = Request.Builder()
@@ -15,4 +17,9 @@ open class IPFSConnection @JvmOverloads constructor(val base_url: String = "http
         return okHttpClient.newCall(request).execute().body();
     }
 
+    val errorAdapter: JsonAdapter<MessageWithCode> by lazy { moshi.adapter(MessageWithCode::class.java) }
+
+    fun setErrorByJSON(jsonString: String) {
+        lastError = errorAdapter.fromJson(jsonString)
+    }
 }
