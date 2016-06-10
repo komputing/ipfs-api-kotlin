@@ -4,7 +4,7 @@ import com.squareup.moshi.JsonAdapter
 import okhttp3.*
 import java.io.File
 
-class Add(val ipfs: IPFS) {
+class Add(val ipfs: IpfsConnection) {
 
     val adapter: JsonAdapter<NamedHash> by lazy { ipfs.moshi.adapter(NamedHash::class.java) }
 

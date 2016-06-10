@@ -1,17 +1,9 @@
 package io.ipfs.kotlin
 
-import okhttp3.*
-
-class Get(val ipfs: IPFS) {
-
+class Get(val ipfs: IpfsConnection) {
 
     fun cat(hash: String): String {
-
-        val request = Request.Builder()
-                .url("${ipfs.base_url}cat/$hash")
-                .build();
-
-        return ipfs.okHttpClient.newCall(request).execute().body().string();
+        return ipfs.callURL("${ipfs.base_url}cat/$hash").string();
     }
 
 }
