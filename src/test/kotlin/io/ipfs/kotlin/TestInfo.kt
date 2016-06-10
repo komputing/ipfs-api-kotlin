@@ -7,7 +7,7 @@ import org.assertj.core.api.Assertions.*;
 class TestInfo() : BaseIPFSWebserverTest() {
 
     @Test
-    fun testAddString() {
+    fun testInfo() {
         // setup
         server.enqueue(MockResponse().setBody("{\"Version\":\"0.4.2\",\"Commit\":\"1654bbf\",\"Repo\":\"3\"}\n"));
 
