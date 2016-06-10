@@ -12,4 +12,5 @@ open class IPFS @JvmOverloads constructor(protected val base_url: String = "http
     val add by lazy { Add(ipfsViaHttp) }
     val get by lazy { Get(ipfsViaHttp) }
     val info by lazy { Info(ipfsViaHttp) }
+    val stats by lazy { Stats(ipfsViaHttp) }
 }
