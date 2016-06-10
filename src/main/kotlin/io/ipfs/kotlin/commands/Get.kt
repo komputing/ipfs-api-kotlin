@@ -1,6 +1,8 @@
-package io.ipfs.kotlin
+package io.ipfs.kotlin.commands
 
-class Get(val ipfs: IpfsConnection) {
+import io.ipfs.kotlin.IPFSConnection
+
+class Get(val ipfs: IPFSConnection) {
 
     fun cat(hash: String): String {
         return ipfs.callURL("${ipfs.base_url}cat/$hash").string();

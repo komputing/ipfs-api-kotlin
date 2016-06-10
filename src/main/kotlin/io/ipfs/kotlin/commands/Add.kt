@@ -1,10 +1,12 @@
-package io.ipfs.kotlin
+package io.ipfs.kotlin.commands
 
 import com.squareup.moshi.JsonAdapter
+import io.ipfs.kotlin.IPFSConnection
+import io.ipfs.kotlin.model.NamedHash
 import okhttp3.*
 import java.io.File
 
-class Add(val ipfs: IpfsConnection) {
+class Add(val ipfs: IPFSConnection) {
 
     val adapter: JsonAdapter<NamedHash> by lazy { ipfs.moshi.adapter(NamedHash::class.java) }
 

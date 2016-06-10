@@ -1,8 +1,10 @@
-package io.ipfs.kotlin
+package io.ipfs.kotlin.commands
 
 import com.squareup.moshi.JsonAdapter
+import io.ipfs.kotlin.IPFSConnection
+import io.ipfs.kotlin.model.VersionInfo
 
-class Info(val ipfs: IpfsConnection) {
+class Info(val ipfs: IPFSConnection) {
 
     val versionAdapter: JsonAdapter<VersionInfo> = ipfs.moshi.adapter(VersionInfo::class.java)
 

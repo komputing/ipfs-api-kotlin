@@ -1,4 +1,4 @@
-package io.ipfs.kotlin
+package io.ipfs.kotlin.model
 
 data class BandWidthInfo(val TotalIn: Int,
                          val TotalOut: Int,
