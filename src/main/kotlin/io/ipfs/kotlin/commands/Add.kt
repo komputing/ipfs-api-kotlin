@@ -8,7 +8,7 @@ import java.io.File
 
 class Add(val ipfs: IPFSConnection) {
 
-    val adapter: JsonAdapter<NamedHash> by lazy { ipfs.moshi.adapter(NamedHash::class.java) }
+    private val adapter: JsonAdapter<NamedHash> by lazy { ipfs.moshi.adapter(NamedHash::class.java) }
 
     @JvmOverloads fun file(file: File, name: String = "file", filename: String = name): NamedHash {
 
