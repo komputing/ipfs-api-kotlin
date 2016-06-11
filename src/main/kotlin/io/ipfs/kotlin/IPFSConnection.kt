@@ -8,16 +8,15 @@ import okhttp3.*
 open class IPFSConnection constructor(val base_url: String, val okHttpClient: OkHttpClient, val moshi: Moshi) {
 
     var lastError: MessageWithCode? = null
+    val errorAdapter: JsonAdapter<MessageWithCode> by lazy { moshi.adapter(MessageWithCode::class.java) }
 
-    fun callURL(url: String): ResponseBody {
+    fun callCmd(cmd: String): ResponseBody {
         val request = Request.Builder()
-                .url(url)
+                .url(base_url+ cmd)
                 .build();
 
         return okHttpClient.newCall(request).execute().body();
     }
-
-    val errorAdapter: JsonAdapter<MessageWithCode> by lazy { moshi.adapter(MessageWithCode::class.java) }
 
     fun setErrorByJSON(jsonString: String) {
         lastError = errorAdapter.fromJson(jsonString)

@@ -5,7 +5,7 @@ import io.ipfs.kotlin.IPFSConnection
 class Get(val ipfs: IPFSConnection) {
 
     fun cat(hash: String): String {
-        return ipfs.callURL("${ipfs.base_url}cat/$hash").string();
+        return ipfs.callCmd("cat/$hash").string();
     }
 
 }
