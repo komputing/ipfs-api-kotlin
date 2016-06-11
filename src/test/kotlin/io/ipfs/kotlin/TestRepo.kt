@@ -38,4 +38,19 @@ class TestRepo() :BaseIPFSWebserverTest() {
         assertThat(executedRequest.path).startsWith("/repo/gc");
     }
 
+    @Test
+    fun testDifferentSeparator() {
+        // setup
+        server.enqueue(MockResponse().setBody("{\"Key\":\"k1\"}\r\n{\"Key\":\"k2\"}\r\n{\"Key\":\"k3\"}"));
+
+        // invoke
+        val addString = ipfs.repo.gc()
+
+        // assert
+        assertThat(addString).containsExactly("k1","k2","k3")
+
+        val executedRequest = server.takeRequest();
+        assertThat(executedRequest.path).startsWith("/repo/gc");
+    }
+
 }
