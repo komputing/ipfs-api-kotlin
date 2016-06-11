@@ -1,5 +1,6 @@
 buildscript {
     ext.kotlin_version = '1.0.2'
+    ext.okhttp_version = '3.3.0'
 
     repositories {
         mavenCentral()
@@ -22,10 +23,10 @@ repositories {
 dependencies {
     compile "org.jetbrains.kotlin:kotlin-stdlib:${kotlin_version}"
     compile 'com.squareup.moshi:moshi:1.0.0'
-    compile 'com.squareup.okhttp3:okhttp:3.1.2'
+    compile "com.squareup.okhttp3:okhttp:${okhttp_version}"
 
     testCompile 'junit:junit:4.12'
     testCompile 'org.mockito:mockito-core:1.9.5'
-    testCompile 'com.squareup.okhttp3:mockwebserver:3.1.2'
+    testCompile "com.squareup.okhttp3:mockwebserver:${okhttp_version}"
     testCompile 'org.assertj:assertj-core:3.4.1'
 }
