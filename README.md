@@ -35,8 +35,6 @@ val content = IPFS().get.cat(multihash)
 val commit = IPFS().info.version().Commit
 ```
 
-
-
 # Use it with java
 
 you can also use it from java - but it is more verbose:
@@ -44,6 +42,12 @@ you can also use it from java - but it is more verbose:
 ```java
 final String multihash = new IPFS().getAdd().string("test-string").getHash();
 ```
+
+# Apps that use this library
+
+[IPFSDroid](http://github.com/ligi/IPFSDroid)
+
+Please send a message or even PR if you write/find an app that also uses this library.
 
 # Dependencies 
 
