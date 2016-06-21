@@ -10,7 +10,9 @@ class Stats(val ipfs: IPFSConnection) {
 
     fun bandWidth(): BandWidthInfo {
         val response = ipfs.callCmd("stats/bw")
-        return bandWidthAdapter.fromJson(response.source())
+        val result = bandWidthAdapter.fromJson(response.source())
+        response.close()
+        return result
     }
 
 }

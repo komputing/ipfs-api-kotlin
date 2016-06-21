@@ -39,8 +39,10 @@ class Add(val ipfs: IPFSConnection) {
                 .post(requestBody)
                 .build();
 
-        val response = ipfs.okHttpClient.newCall(request).execute();
-        return adapter.fromJson(response.body().source())
+        val response = ipfs.okHttpClient.newCall(request).execute().body()
+        val result = adapter.fromJson(response.source())
+        response.close()
+        return result
 
     }
 }

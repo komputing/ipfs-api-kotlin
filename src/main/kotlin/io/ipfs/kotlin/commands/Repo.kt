@@ -8,7 +8,9 @@ class Repo(val ipfs: IPFSConnection) {
 
     fun gc(): List<String> {
         val response = ipfs.callCmd("repo/gc")
-        return listFromNDJson(response.source())
+        val result = listFromNDJson(response.source())
+        response.close()
+        return result
     }
 
     fun listFromNDJson(source: BufferedSource): List<String> {

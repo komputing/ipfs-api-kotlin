@@ -10,7 +10,9 @@ class Info(val ipfs: IPFSConnection) {
 
     fun version(): VersionInfo {
         val response = ipfs.callCmd("version")
-        return versionAdapter.fromJson(response.source())
+        val result = versionAdapter.fromJson(response.source())
+        response.close()
+        return result
     }
 
 }
