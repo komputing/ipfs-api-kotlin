@@ -6,7 +6,7 @@ import org.junit.Before
 
 abstract class BaseIPFSWebserverTest() {
 
-    val server = MockWebServer();
+    val server = MockWebServer()
     val ipfs: IPFS by lazy { IPFS(base_url = server.url("").toString()) }
 
     @Before

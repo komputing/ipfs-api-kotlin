@@ -3,7 +3,9 @@ package io.ipfs.kotlin
 import com.squareup.moshi.JsonAdapter
 import com.squareup.moshi.Moshi
 import io.ipfs.kotlin.model.MessageWithCode
-import okhttp3.*
+import okhttp3.OkHttpClient
+import okhttp3.Request
+import okhttp3.ResponseBody
 
 open class IPFSConnection constructor(val base_url: String, val okHttpClient: OkHttpClient, val moshi: Moshi) {
 
@@ -13,9 +15,9 @@ open class IPFSConnection constructor(val base_url: String, val okHttpClient: Ok
     fun callCmd(cmd: String): ResponseBody {
         val request = Request.Builder()
                 .url(base_url+ cmd)
-                .build();
+                .build()
 
-        return okHttpClient.newCall(request).execute().body();
+        return okHttpClient.newCall(request).execute().body()
     }
 
     fun setErrorByJSON(jsonString: String) {
