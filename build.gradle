@@ -1,5 +1,5 @@
 buildscript {
-    ext.kotlin_version = '1.0.3'
+    ext.kotlin_version = '1.0.6'
     ext.okhttp_version = '3.4.0'
 
     repositories {
@@ -34,4 +34,8 @@ dependencies {
     testCompile 'org.mockito:mockito-core:1.9.5'
     testCompile "com.squareup.okhttp3:mockwebserver:${okhttp_version}"
     testCompile 'org.assertj:assertj-core:3.4.1'
+    compile "org.jetbrains.kotlin:kotlin-stdlib:$kotlin_version"
+}
+sourceSets {
+    main.java.srcDirs += 'src/main/kotlin'
 }
