@@ -58,15 +58,14 @@ class TestAdd() :BaseIPFSWebserverTest() {
         val dttf2 = File.createTempFile("dirtemptestfile2", null, path.toFile())
         dttf2.writeText("Contents of temptestdir/dirtemptestfile2")
 
-        val addString = ipfs.add.file(path.toFile(),path.fileName.toString())
+        val result = ipfs.add.directory(path.toFile(),path.fileName.toString())
 
         // assert
-        assertThat(addString.Hash).isEqualTo("hashprobe")
-        assertThat(addString.Name).isEqualTo("nameprobe")
+        assertThat(result.first().Hash).isEqualTo("hashprobe")
+        assertThat(result.first().Name).isEqualTo("nameprobe")
 
         val executedRequest = server.takeRequest()
         val body = executedRequest.body.readUtf8()
-        System.out.println(body)
         assertThat(executedRequest.path).startsWith("/add")
         assertThat(body).containsPattern(""".*temptestdir.*""")
     }

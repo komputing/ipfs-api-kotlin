@@ -11,12 +11,25 @@ class Add(val ipfs: IPFSConnection) {
 
     private val adapter: JsonAdapter<NamedHash> by lazy { ipfs.moshi.adapter(NamedHash::class.java) }
 
+    // Accepts a single file or directory and returns the named hash.
+    // For directories we return the hash of the enclosing
+    // directory because that makes the most sense, also for
+    // consistency with the java-ipfs-api implementation.
     @JvmOverloads fun file(file: File, name: String = "file", filename: String = name): NamedHash {
 
         return addGeneric {
             addFile(it, file, name, filename)
-        }
+        }.last()
+    }
 
+    // Accepts a single file or directory and returns the named hash.
+    // Returns a collection of named hashes for the containing directory
+    // and all sub-directories.
+    @JvmOverloads fun directory(file: File, name: String = "file", filename: String = name): List<NamedHash> {
+
+        return addGeneric {
+            addFile(it, file, name, filename)
+        }
     }
 
     // this has to be outside the lambda because it is reentrant to handle subdirectory structures
@@ -44,11 +57,12 @@ class Add(val ipfs: IPFSConnection) {
         return addGeneric {
             val body = RequestBody.create(MediaType.parse("application/octet-stream"), text)
             it.addFormDataPart(name, filename, body)
-        }
+        }.last()
+        // there can be only one
 
     }
 
-    private fun addGeneric(withBuilder: (MultipartBody.Builder) -> Any): NamedHash {
+    private fun addGeneric(withBuilder: (MultipartBody.Builder) -> Any): List<NamedHash> {
 
         val builder = MultipartBody.Builder().setType(MultipartBody.FORM)
         withBuilder(builder)
@@ -60,17 +74,11 @@ class Add(val ipfs: IPFSConnection) {
                 .build();
 
         val response = ipfs.okHttpClient.newCall(request).execute().body()
-        var result: NamedHash = NamedHash("nameprobe","hashprobe")
-
-//        val result = adapter.fromJson(response.source())
-        System.out.println("addGeneric() response.charStream()")
+        val results = mutableListOf<NamedHash>()
         response.charStream().readLines().forEach {
-            System.out.println(it)
+            results.add(adapter.fromJson(it))
         }
-        System.out.println("addGeneric() result uninitialized")
-        System.out.println(result)
         response.close()
-        return result
-
+        return results
     }
 }
