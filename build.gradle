@@ -36,6 +36,3 @@ dependencies {
     testCompile 'org.assertj:assertj-core:3.4.1'
     compile "org.jetbrains.kotlin:kotlin-stdlib:$kotlin_version"
 }
-sourceSets {
-    main.java.srcDirs += 'src/main/kotlin'
-}
