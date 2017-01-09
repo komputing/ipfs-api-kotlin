@@ -15,22 +15,18 @@ class Add(val ipfs: IPFSConnection) {
     // For directories we return the hash of the enclosing
     // directory because that makes the most sense, also for
     // consistency with the java-ipfs-api implementation.
-    @JvmOverloads fun file(file: File, name: String = "file", filename: String = name): NamedHash {
+    @JvmOverloads fun file(file: File, name: String = "file", filename: String = name) = addGeneric {
+        addFile(it, file, name, filename)
+    }.last()
 
-        return addGeneric {
-            addFile(it, file, name, filename)
-        }.last()
-    }
 
     // Accepts a single file or directory and returns the named hash.
     // Returns a collection of named hashes for the containing directory
     // and all sub-directories.
-    @JvmOverloads fun directory(file: File, name: String = "file", filename: String = name): List<NamedHash> {
-
-        return addGeneric {
-            addFile(it, file, name, filename)
-        }
+    @JvmOverloads fun directory(file: File, name: String = "file", filename: String = name) = addGeneric {
+        addFile(it, file, name, filename)
     }
+
 
     // this has to be outside the lambda because it is reentrant to handle subdirectory structures
     private fun addFile(builder: MultipartBody.Builder, file: File, name: String, filename: String) {
@@ -74,11 +70,9 @@ class Add(val ipfs: IPFSConnection) {
                 .build();
 
         val response = ipfs.okHttpClient.newCall(request).execute().body()
-        val results = mutableListOf<NamedHash>()
-        response.charStream().readLines().forEach {
-            results.add(adapter.fromJson(it))
+
+        response.use {
+            return response.charStream().readLines().map { adapter.fromJson(it) }.toMutableList()
         }
-        response.close()
-        return results
     }
 }
