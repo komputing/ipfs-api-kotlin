@@ -4,9 +4,9 @@ import okhttp3.mockwebserver.MockWebServer
 import org.junit.After
 import org.junit.Before
 
-abstract class BaseIPFSWebserverTest() {
+abstract class BaseIPFSWebserverTest {
 
-    val server = MockWebServer();
+    val server = MockWebServer()
     val ipfs: IPFS by lazy { IPFS(base_url = server.url("").toString()) }
 
     @Before
