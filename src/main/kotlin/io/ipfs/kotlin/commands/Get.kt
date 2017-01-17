@@ -1,14 +1,10 @@
 package io.ipfs.kotlin.commands
 
 import io.ipfs.kotlin.IPFSConnection
+import okhttp3.ResponseBody
 
 class Get(val ipfs: IPFSConnection) {
 
-    fun cat(hash: String): String {
-        val response = ipfs.callCmd("cat/$hash")
-        val result = response.string()
-        response.close()
-        return result;
-    }
+    fun cat(hash: String): String = ipfs.callCmd("cat/$hash").use(ResponseBody::string)
 
 }
