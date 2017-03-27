@@ -25,12 +25,12 @@ dependencies {
 val multihash = IPFS().add.string("test-string").Hash
 ```
 
-###get a string
+### get a string
 ```kotlin
 val content = IPFS().get.cat(multihash)
 ```
 
-###get commit from version
+### get commit from version
 ```kotlin
 val commit = IPFS().info.version().Commit
 ```
