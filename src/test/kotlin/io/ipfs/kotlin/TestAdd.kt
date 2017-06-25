@@ -1,18 +1,18 @@
 package io.ipfs.kotlin
 
 import okhttp3.mockwebserver.MockResponse
+import org.assertj.core.api.Assertions.assertThat
 import org.junit.Test
-import org.assertj.core.api.Assertions.*;
 import java.io.File
 import java.nio.file.Files
 import java.nio.file.Paths
 
-class TestAdd() :BaseIPFSWebserverTest() {
+class TestAdd :BaseIPFSWebserverTest() {
 
     @Test
     fun testAddString() {
         // setup
-        server.enqueue(MockResponse().setBody("{\"Hash\":\"hashprobe\",\"Name\":\"nameprobe\"}"));
+        server.enqueue(MockResponse().setBody("{\"Hash\":\"hashprobe\",\"Name\":\"nameprobe\"}"))
 
         // invoke
         val addString = ipfs.add.string("foo")
@@ -22,14 +22,14 @@ class TestAdd() :BaseIPFSWebserverTest() {
         assertThat(addString.Name).isEqualTo("nameprobe")
 
         val executedRequest = server.takeRequest();
-        assertThat(executedRequest.path).startsWith("/add");
+        assertThat(executedRequest.path).startsWith("/add")
 
     }
 
     @Test
     fun testAddFile() {
         // setup
-        server.enqueue(MockResponse().setBody("{\"Hash\":\"hashprobe\",\"Name\":\"nameprobe\"}"));
+        server.enqueue(MockResponse().setBody("{\"Hash\":\"hashprobe\",\"Name\":\"nameprobe\"}"))
 
         // invoke
         val addString = ipfs.add.file(File.createTempFile("temptestfile", null))

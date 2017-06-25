@@ -1,15 +1,15 @@
 package io.ipfs.kotlin
 
 import okhttp3.mockwebserver.MockResponse
+import org.assertj.core.api.Assertions.assertThat
 import org.junit.Test
-import org.assertj.core.api.Assertions.*;
 
-class TestGet() : BaseIPFSWebserverTest() {
+class TestGet : BaseIPFSWebserverTest() {
 
     @Test
     fun testAddString() {
         // setup
-        server.enqueue(MockResponse().setBody("result"));
+        server.enqueue(MockResponse().setBody("result"))
 
         // invoke
         val result = ipfs.get.cat("hash")
@@ -17,8 +17,8 @@ class TestGet() : BaseIPFSWebserverTest() {
         // assert
         assertThat(result).isEqualTo("result")
 
-        val executedRequest = server.takeRequest();
-        assertThat(executedRequest.path).startsWith("/cat/hash");
+        val executedRequest = server.takeRequest()
+        assertThat(executedRequest.path).startsWith("/cat/hash")
 
     }
 
