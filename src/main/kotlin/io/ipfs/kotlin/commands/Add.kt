@@ -70,7 +70,7 @@ class Add(val ipfs: IPFSConnection) {
         val response = ipfs.okHttpClient.newCall(request).execute().body()
 
         response.use {
-            return response.charStream().readLines().map { adapter.fromJson(it) }.toMutableList()
+            return it!!.charStream().readLines().map { adapter.fromJson(it) }.toMutableList()
         }
     }
 }
