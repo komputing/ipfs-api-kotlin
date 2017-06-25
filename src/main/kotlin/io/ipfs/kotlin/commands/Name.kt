@@ -11,27 +11,25 @@ class Name(val ipfs: IPFSConnection) {
     private val pathAdapter: JsonAdapter<Path> by lazy { ipfs.moshi.adapter(Path::class.java) }
 
     fun publish(hash: String): String? {
-        val response = ipfs.callCmd("name/publish/$hash")
-        val resultString = response.string()
-        response.close()
+        val resultString = ipfs.callCmd("name/publish/$hash").use { it.string() }
         val resultBoolean = resultString.contains(hash)
         if (!resultBoolean) {
             ipfs.setErrorByJSON(resultString)
             return null
         }
-        return adapter.fromJson(resultString).Name
+        return adapter.fromJson(resultString)?.Name
     }
 
     fun resolve(hash: String): String? {
-        val response = ipfs.callCmd("name/resolve/$hash")
-        val resultString = response.string()
-        response.close()
+        val resultString = ipfs.callCmd("name/resolve/$hash").use { it.string() }
 
-        if (resultString.contains("Path")) {
-            return pathAdapter.fromJson(resultString).Path
+        return if (resultString == null) {
+            null
+        } else if (resultString.contains("Path")) {
+            pathAdapter.fromJson(resultString)?.Path
         } else {
             ipfs.setErrorByJSON(resultString)
-            return null
+            null
         }
     }
 

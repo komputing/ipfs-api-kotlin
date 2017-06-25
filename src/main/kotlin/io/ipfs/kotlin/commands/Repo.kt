@@ -17,7 +17,7 @@ class Repo(val ipfs: IPFSConnection) {
         val keyAdapter = ipfs.moshi.adapter(Key::class.java)
         // http://ndjson.org
         return source.readUtf8().replace("\r", "").split("\n").filter { !it.isEmpty() }.map {
-            keyAdapter.fromJson(it).Key
-        }
+            keyAdapter.fromJson(it)?.Key
+        }.filterNotNull()
     }
 }

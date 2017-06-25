@@ -8,11 +8,9 @@ class Stats(val ipfs: IPFSConnection) {
 
     private val bandWidthAdapter: JsonAdapter<BandWidthInfo> = ipfs.moshi.adapter(BandWidthInfo::class.java)
 
-    fun bandWidth(): BandWidthInfo {
+    fun bandWidth(): BandWidthInfo? {
         val response = ipfs.callCmd("stats/bw")
-        val result = bandWidthAdapter.fromJson(response.source())
-        response.close()
-        return result
+        return response.use { bandWidthAdapter.fromJson(it.source()) }
     }
 
 }

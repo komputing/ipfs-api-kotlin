@@ -15,7 +15,8 @@ class TestInfo : BaseIPFSWebserverTest() {
         val addString = ipfs.info.version()
 
         // assert
-        assertThat(addString.Version).isEqualTo("0.4.2")
+        assertThat(addString).isNotNull()
+        assertThat(addString!!.Version).isEqualTo("0.4.2")
         assertThat(addString.Commit).isEqualTo("1654bbf")
         assertThat(addString.Repo).isEqualTo("3")
 

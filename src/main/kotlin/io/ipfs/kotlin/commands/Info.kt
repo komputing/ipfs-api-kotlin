@@ -8,11 +8,9 @@ class Info(val ipfs: IPFSConnection) {
 
     private val versionAdapter: JsonAdapter<VersionInfo> = ipfs.moshi.adapter(VersionInfo::class.java)
 
-    fun version(): VersionInfo {
+    fun version(): VersionInfo? {
         val response = ipfs.callCmd("version")
-        val result = versionAdapter.fromJson(response.source())
-        response.close()
-        return result
+       return response.use { versionAdapter.fromJson(it.source()) }
     }
 
 }
