@@ -6,12 +6,7 @@ import okio.BufferedSource
 
 class Repo(val ipfs: IPFSConnection) {
 
-    fun gc(): List<String> {
-        val response = ipfs.callCmd("repo/gc")
-        val result = listFromNDJson(response.source())
-        response.close()
-        return result
-    }
+    fun gc() = ipfs.callCmd("repo/gc").use {  listFromNDJson(it.source()) }
 
     fun listFromNDJson(source: BufferedSource): List<String> {
         val keyAdapter = ipfs.moshi.adapter(Key::class.java)
