@@ -34,7 +34,7 @@ dependencies {
     compile "com.squareup.okhttp3:okhttp:${okhttp_version}"
 
     testCompile 'junit:junit:4.12'
-    testCompile 'org.mockito:mockito-core:2.8.9'
+    testCompile 'org.mockito:mockito-core:2.9.0'
     testCompile "com.squareup.okhttp3:mockwebserver:${okhttp_version}"
     testCompile 'org.assertj:assertj-core:3.8.0'
 }
