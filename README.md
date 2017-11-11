@@ -1,6 +1,6 @@
 # [IPFS](http://ipfs.io) API for kotlin to access a IPFS node via http
 
-[![Build Status](https://snap-ci.com/ligi/ipfs-api-kotlin/branch/master/build_image)](https://snap-ci.com/ligi/ipfs-api-kotlin/branch/master) [![Release](https://jitpack.io/v/ligi/ipfs-api-kotlin.svg)](https://jitpack.io/#ligi/ipfs-api-kotlin)
+[![Release](https://jitpack.io/v/ligi/ipfs-api-kotlin.svg)](https://jitpack.io/#ligi/ipfs-api-kotlin)
 
 # Get it
 
