@@ -47,6 +47,7 @@ final String multihash = new IPFS().getAdd().string("test-string").getHash();
 
 * [IPFSDroid](http://github.com/ligi/IPFSDroid)
 * [Kontinuum](http://github.com/ligi/kontinuum)
+* [RHazOS Management console](https://github.com/RHazDev/IPFS-Android)
 
 Please send a message or even PR if you write/find an app that also uses this library.
 
