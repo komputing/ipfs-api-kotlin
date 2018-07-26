@@ -1,6 +1,6 @@
 buildscript {
     ext.kotlin_version = '1.2.51'
-    ext.okhttp_version = '3.10.0'
+    ext.okhttp_version = '3.11.0'
 
     repositories {
         jcenter()
@@ -8,7 +8,7 @@ buildscript {
 
     dependencies {
         classpath "org.jetbrains.kotlin:kotlin-gradle-plugin:$kotlin_version"
-        classpath 'com.github.ben-manes:gradle-versions-plugin:0.17.0'
+        classpath 'com.github.ben-manes:gradle-versions-plugin:0.20.0'
     }
 }
 
