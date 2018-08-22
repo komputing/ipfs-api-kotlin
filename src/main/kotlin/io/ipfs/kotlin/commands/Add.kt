@@ -60,7 +60,7 @@ class Add(val ipfs: IPFSConnection) {
 
         val builder = MultipartBody.Builder().setType(MultipartBody.FORM)
         withBuilder(builder)
-        val requestBody = builder.build();
+        val requestBody = builder.build()
 
         val request = Request.Builder()
                 .url("${ipfs.base_url}add?stream-channels=true&progress=false")
