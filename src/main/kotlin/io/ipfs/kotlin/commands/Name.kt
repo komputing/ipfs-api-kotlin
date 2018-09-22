@@ -23,13 +23,13 @@ class Name(val ipfs: IPFSConnection) {
     fun resolve(hash: String): String? {
         val resultString = ipfs.callCmd("name/resolve/$hash").use { it.string() }
 
-        return if (resultString == null) {
-            null
-        } else if (resultString.contains("Path")) {
-            pathAdapter.fromJson(resultString)?.Path
-        } else {
-            ipfs.setErrorByJSON(resultString)
-            null
+        return when {
+            resultString == null -> null
+            resultString.contains("Path") -> pathAdapter.fromJson(resultString)?.Path
+            else -> {
+                ipfs.setErrorByJSON(resultString)
+                null
+            }
         }
     }
 
