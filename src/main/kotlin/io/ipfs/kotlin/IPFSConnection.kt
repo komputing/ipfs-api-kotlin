@@ -7,14 +7,19 @@ import okhttp3.OkHttpClient
 import okhttp3.Request
 import okhttp3.ResponseBody
 
-open class IPFSConnection constructor(val base_url: String, val okHttpClient: OkHttpClient, val moshi: Moshi) {
+open class IPFSConnection(val base_url: String,
+                          val okHttpClient: OkHttpClient,
+                          val moshi: Moshi) {
 
     var lastError: MessageWithCode? = null
-    val errorAdapter: JsonAdapter<MessageWithCode> by lazy { moshi.adapter(MessageWithCode::class.java) }
+
+    private val errorAdapter: JsonAdapter<MessageWithCode> by lazy {
+        moshi.adapter(MessageWithCode::class.java)
+    }
 
     fun callCmd(cmd: String): ResponseBody {
         val request = Request.Builder()
-                .url(base_url+ cmd)
+                .url(base_url + cmd)
                 .build()
 
         return okHttpClient.newCall(request).execute().body()!!
