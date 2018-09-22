@@ -9,13 +9,15 @@ import java.net.URLEncoder
 
 class Add(val ipfs: IPFSConnection) {
 
-    private val adapter: JsonAdapter<NamedHash> by lazy { ipfs.moshi.adapter(NamedHash::class.java) }
+    private val adapter: JsonAdapter<NamedHash> by lazy {
+        ipfs.config.moshi.adapter(NamedHash::class.java)
+    }
 
     // Accepts a single file or directory and returns the named hash.
     // For directories we return the hash of the enclosing
     // directory because that makes the most sense, also for
     // consistency with the java-ipfs-api implementation.
-    @JvmOverloads fun file(file: File, name: String = "file", filename: String = name) = addGeneric {
+    fun file(file: File, name: String = "file", filename: String = name) = addGeneric {
         addFile(it, file, name, filename)
     }.last()
 
@@ -23,7 +25,7 @@ class Add(val ipfs: IPFSConnection) {
     // Accepts a single file or directory and returns the named hash.
     // Returns a collection of named hashes for the containing directory
     // and all sub-directories.
-    @JvmOverloads fun directory(file: File, name: String = "file", filename: String = name) = addGeneric {
+    fun directory(file: File, name: String = "file", filename: String = name) = addGeneric {
         addFile(it, file, name, filename)
     }
 
@@ -46,7 +48,7 @@ class Add(val ipfs: IPFSConnection) {
 
     }
 
-    @JvmOverloads fun string(text: String, name: String = "string", filename: String = name): NamedHash {
+    fun string(text: String, name: String = "string", filename: String = name): NamedHash {
 
         return addGeneric {
             val body = RequestBody.create(MediaType.parse("application/octet-stream"), text)
@@ -63,14 +65,16 @@ class Add(val ipfs: IPFSConnection) {
         val requestBody = builder.build()
 
         val request = Request.Builder()
-                .url("${ipfs.base_url}add?stream-channels=true&progress=false")
+                .url("${ipfs.config.base_url}add?stream-channels=true&progress=false")
                 .post(requestBody)
                 .build()
 
-        val response = ipfs.okHttpClient.newCall(request).execute().body()
+        val response = ipfs.config.okHttpClient.newCall(request).execute().body()
 
-        response.use {
-            return it!!.charStream().readLines().map { adapter.fromJson(it) }.toList().filterNotNull()
+        response.use { responseBody ->
+            return responseBody!!.charStream().readLines().asSequence().map {
+                adapter.fromJson(it)
+            }.filterNotNull().toList()
         }
     }
 }

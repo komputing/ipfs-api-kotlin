@@ -12,17 +12,17 @@ class Repo(val ipfs: IPFSConnection) {
 
     fun listFromNDJson(source: BufferedSource): List<String> {
         val jsonString = source.readUtf8()
-        try {
-            val keyV2Adapter = ipfs.moshi.adapter(KeyV2::class.java)
-            return jsonString.parseNDJSON({ keyV2Adapter.fromJson(it)?.Key?.hash })
+        return try {
+            val keyV2Adapter = ipfs.config.moshi.adapter(KeyV2::class.java)
+            jsonString.parseNDJSON { keyV2Adapter.fromJson(it)?.Key?.hash }
         } catch (e: JsonDataException) {
-            val keyAdapter = ipfs.moshi.adapter(Key::class.java)
-            return jsonString.parseNDJSON({ keyAdapter.fromJson(it)?.Key })
+            val keyAdapter = ipfs.config.moshi.adapter(Key::class.java)
+            jsonString.parseNDJSON { keyAdapter.fromJson(it)?.Key }
         }
     }
 
     // http://ndjson.org
-    fun String.parseNDJSON(convert: (input: String?) -> String?) = replace("\r", "").split("\n").filter { !it.isEmpty() }.map {
+    private fun String.parseNDJSON(convert: (input: String?) -> String?) = replace("\r", "").split("\n").asSequence().filter { !it.isEmpty() }.map {
         convert(it)
-    }.filterNotNull()
+    }.filterNotNull().toList()
 }

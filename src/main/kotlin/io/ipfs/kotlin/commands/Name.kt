@@ -7,8 +7,13 @@ import io.ipfs.kotlin.model.Path
 
 class Name(val ipfs: IPFSConnection) {
 
-    private val adapter: JsonAdapter<NameValue> by lazy { ipfs.moshi.adapter(NameValue::class.java) }
-    private val pathAdapter: JsonAdapter<Path> by lazy { ipfs.moshi.adapter(Path::class.java) }
+    private val adapter: JsonAdapter<NameValue> by lazy {
+        ipfs.config.moshi.adapter(NameValue::class.java)
+    }
+
+    private val pathAdapter: JsonAdapter<Path> by lazy {
+        ipfs.config.moshi.adapter(Path::class.java)
+    }
 
     fun publish(hash: String): String? {
         val resultString = ipfs.callCmd("name/publish/$hash").use { it.string() }
