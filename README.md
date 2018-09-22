@@ -22,18 +22,20 @@ dependencies {
 
 ### add a string
 ```kotlin
-val multihash = IPFS().add.string("test-string").Hash
+val multihash = LocalIPFS().add.string("test-string").Hash
 ```
 
 ### get a string
 ```kotlin
-val content = IPFS().get.cat(multihash)
+val content = LocalIPFS().get.cat(multihash)
 ```
 
 ### get commit from version
 ```kotlin
-val commit = IPFS().info.version().Commit
+val commit = LocalIPFS().info.version().Commit
 ```
+
+Note: when you are not running a local IPFS daemon you can also use infura just replace LocalIPFS() with InfuraIPFS() or write your own configuration.
 
 # Apps that use this library
 
