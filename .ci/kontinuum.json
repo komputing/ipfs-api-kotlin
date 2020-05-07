@@ -1,4 +1,5 @@
 {
-"type":"kotlincli",
-"stages":["test","build"]
+"type":"library",
+"stages":[{"name":"test"},{"name":"build"}]
 }
+
