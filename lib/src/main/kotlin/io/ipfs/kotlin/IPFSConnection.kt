@@ -16,6 +16,7 @@ open class IPFSConnection(val config: IPFSConfiguration) {
 
     fun callCmd(cmd: String): ResponseBody {
         val request = Request.Builder()
+                .post(RequestBody.create(null, ""))
                 .url(config.base_url + cmd)
                 .build()
 
