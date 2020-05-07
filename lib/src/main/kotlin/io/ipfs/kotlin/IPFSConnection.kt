@@ -3,6 +3,7 @@ package io.ipfs.kotlin
 import com.squareup.moshi.JsonAdapter
 import io.ipfs.kotlin.model.MessageWithCode
 import okhttp3.Request
+import okhttp3.RequestBody
 import okhttp3.ResponseBody
 
 open class IPFSConnection(val config: IPFSConfiguration) {
