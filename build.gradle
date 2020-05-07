@@ -30,7 +30,7 @@ repositories {
 dependencies {
     compile "org.jetbrains.kotlin:kotlin-stdlib:${kotlin_version}"
     // we can't yet use moshi 1.5.0 as we need @Json https://github.com/square/moshi/issues/315
-    compile 'com.squareup.moshi:moshi:1.4.0'
+    compile 'com.squareup.moshi:moshi:1.9.2'
     compile "com.squareup.okhttp3:okhttp:${okhttp_version}"
 
     testCompile 'junit:junit:4.13'
