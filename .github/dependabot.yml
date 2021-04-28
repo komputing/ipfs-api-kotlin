@@ -1,0 +1,21 @@
+version: 2
+updates:
+- package-ecosystem: gradle
+  directory: "/"
+  schedule:
+    interval: daily
+  open-pull-requests-limit: 10
+  ignore:
+  - dependency-name: io.mockk:mockk
+    versions:
+    - 1.10.5
+    - 1.10.6
+  - dependency-name: com.squareup.okhttp3:mockwebserver
+    versions:
+    - 4.6.0
+  - dependency-name: com.squareup.okhttp3:okhttp
+    versions:
+    - 4.6.0
+  - dependency-name: com.squareup.moshi:moshi
+    versions:
+    - 1.9.2
