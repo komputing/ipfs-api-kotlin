@@ -32,7 +32,7 @@ val content = LocalIPFS().get.cat(multihash)
 
 ### get commit from version
 ```kotlin
-val commit = LocalIPFS().info.version().Commit
+val commit = LocalIPFS().info.version()?.Commit
 ```
 
 Note: when you are not running a local IPFS daemon you can also use infura just replace LocalIPFS() with InfuraIPFS() or write your own configuration.
