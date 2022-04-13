@@ -14,7 +14,7 @@ repositories {
 
 ``` groovy
 dependencies {
-  compile 'com.github.ligi:ipfs-api-kotlin:$current_version'
+  implementation 'com.github.ligi:ipfs-api-kotlin:$current_version'
 }
 ```
 
