@@ -1,5 +1,7 @@
 package io.ipfs.kotlin
 
+import io.ktor.http.*
+import kotlinx.coroutines.test.runTest
 import okhttp3.mockwebserver.MockResponse
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.Test
@@ -7,9 +9,12 @@ import org.junit.Test
 class TestName : BaseIPFSWebserverTest() {
 
     @Test
-    fun testPublishSuccess() {
+    fun testPublishSuccess() = runTest {
         // setup
-        server.enqueue(MockResponse().setBody("{\"Name\":\"hashname\",\"Value\":\"hashvalue\"}\n"))
+        server.enqueue(
+            MockResponse().setHeader("Content-Type", ContentType.Application.Json)
+                .setBody("{\"Name\":\"hashname\",\"Value\":\"hashvalue\"}\n")
+        )
 
         // invoke
         val result = ipfs.name.publish("hashvalue")
@@ -23,9 +28,12 @@ class TestName : BaseIPFSWebserverTest() {
     }
 
     @Test
-    fun testPublishFail() {
+    fun testPublishFail() = runTest {
         // setup
-        server.enqueue(MockResponse().setBody("{\"Message\":\"invalid ipfs ref path\",\"Code\":0}"))
+        server.enqueue(
+            MockResponse().setHeader("Content-Type", ContentType.Application.Json)
+                .setBody("{\"Message\":\"invalid ipfs ref path\",\"Code\":0}")
+        )
 
         // invoke
         val result = ipfs.name.publish("hashname")
@@ -41,9 +49,12 @@ class TestName : BaseIPFSWebserverTest() {
     }
 
     @Test
-    fun testResolveSuccess() {
+    fun testResolveSuccess() = runTest {
         // setup
-        server.enqueue(MockResponse().setBody("{\"Path\":\"/ipfs/somehash\"}\n"))
+        server.enqueue(
+            MockResponse().setHeader("Content-Type", ContentType.Application.Json)
+                .setBody("{\"Path\":\"/ipfs/somehash\"}\n")
+        )
 
         // invoke
         val result = ipfs.name.resolve("somehash")
@@ -57,9 +68,12 @@ class TestName : BaseIPFSWebserverTest() {
     }
 
     @Test
-    fun testResolveFail() {
+    fun testResolveFail() = runTest {
         // setup
-        server.enqueue(MockResponse().setBody("{\"Message\":\"Could not resolve name.\",\"Code\":0}"))
+        server.enqueue(
+            MockResponse().setHeader("Content-Type", ContentType.Application.Json)
+                .setBody("{\"Message\":\"Could not resolve name.\",\"Code\":0}")
+        )
 
         // invoke
         val result = ipfs.name.resolve("somehash")

@@ -15,6 +15,7 @@ abstract class BaseIPFSWebserverTest {
     @Before
     fun runBeforeEveryTest() {
         server.start()
+
     }
 
     @After

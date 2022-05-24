@@ -1,5 +1,7 @@
 package io.ipfs.kotlin
 
+import io.ktor.http.*
+import kotlinx.coroutines.test.runTest
 import okhttp3.mockwebserver.MockResponse
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.Test
@@ -7,9 +9,12 @@ import org.junit.Test
 class TestInfo : BaseIPFSWebserverTest() {
 
     @Test
-    fun testInfo() {
+    fun testInfo() = runTest {
         // setup
-        server.enqueue(MockResponse().setBody("{\"Version\":\"0.4.2\",\"Commit\":\"1654bbf\",\"Repo\":\"3\"}\n"))
+        server.enqueue(
+            MockResponse().setHeader("Content-Type", ContentType.Application.Json)
+                .setBody("{\"Version\":\"0.4.2\",\"Commit\":\"1654bbf\",\"Repo\":\"3\"}\n")
+        )
 
         // invoke
         val addString = ipfs.info.version()

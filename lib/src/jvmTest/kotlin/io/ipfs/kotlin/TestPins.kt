@@ -1,5 +1,7 @@
 package io.ipfs.kotlin
 
+import io.ktor.http.*
+import kotlinx.coroutines.test.runTest
 import okhttp3.mockwebserver.MockResponse
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.Test
@@ -7,9 +9,12 @@ import org.junit.Test
 class TestPins : BaseIPFSWebserverTest() {
 
     @Test
-    fun testAddPin() {
+    fun testAddPin() = runTest {
         // setup
-        server.enqueue(MockResponse().setBody("{\"Pins\":[\"QmPFDyWdL6yjz92jdc6bzWXHKVvydAhgTzhefSmmkDXzSZ\"]}"))
+        server.enqueue(
+            MockResponse().setHeader("Content-Type", ContentType.Application.Json)
+                .setBody("{\"Pins\":[\"QmPFDyWdL6yjz92jdc6bzWXHKVvydAhgTzhefSmmkDXzSZ\"]}")
+        )
 
         // invoke
         val result = ipfs.pins.add("QmPFDyWdL6yjz92jdc6bzWXHKVvydAhgTzhefSmmkDXzSZ")
@@ -23,9 +28,12 @@ class TestPins : BaseIPFSWebserverTest() {
     }
 
     @Test
-    fun testAddPinFail() {
+    fun testAddPinFail() = runTest {
         // setup
-        server.enqueue(MockResponse().setBody("{\"Message\":\"pin: invalid ipfs ref path\",\"Code\":0}"))
+        server.enqueue(
+            MockResponse().setHeader("Content-Type", ContentType.Application.Json)
+                .setBody("{\"Message\":\"pin: invalid ipfs ref path\",\"Code\":0}")
+        )
 
         // invoke
         val result = ipfs.pins.add("foo")

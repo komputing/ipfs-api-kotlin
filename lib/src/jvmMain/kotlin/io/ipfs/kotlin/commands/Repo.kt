@@ -3,16 +3,16 @@ package io.ipfs.kotlin.commands
 import io.ipfs.kotlin.IPFSConnection
 import io.ipfs.kotlin.model.Key
 import io.ipfs.kotlin.model.KeyV2
+import io.ktor.client.statement.*
 import kotlinx.serialization.decodeFromString
 import kotlinx.serialization.json.Json
-import okio.BufferedSource
 
 class Repo(val ipfs: IPFSConnection) {
 
-    fun gc() = ipfs.callCmd("repo/gc").use { listFromNDJson(it.source()) }
+    suspend fun gc() = ipfs.callCmd("repo/gc").let { listFromNDJson(it) }
 
-    fun listFromNDJson(source: BufferedSource): List<String> {
-        val jsonString = source.readUtf8()
+    suspend fun listFromNDJson(source: HttpResponse): List<String> {
+        val jsonString = source.bodyAsText()
         return try {
             jsonString.parseNDJSON { it?.let { Json.decodeFromString<KeyV2>(it).Key.hash } }
         } catch (e: Throwable) {

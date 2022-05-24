@@ -2,15 +2,20 @@ package io.ipfs.kotlin.commands
 
 import io.ipfs.kotlin.IPFSConnection
 import io.ipfs.kotlin.model.BandWidthInfo
-import kotlinx.serialization.json.Json
-import kotlinx.serialization.json.decodeFromStream
+import io.ktor.client.call.*
+import io.ktor.http.*
 
 class Stats(val ipfs: IPFSConnection) {
 
 
-    fun bandWidth(): BandWidthInfo? {
-        val response = ipfs.callCmd("stats/bw")
-        return response.use { Json.decodeFromStream(it.byteStream()) }
+    suspend fun bandWidth(): BandWidthInfo? {
+        return try {
+            val result : BandWidthInfo = ipfs.callCmd("stats/bw").body()
+            result
+        } catch (t : Throwable){
+            println(t)
+            null
+        }
     }
 
 }

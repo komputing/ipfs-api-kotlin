@@ -1,5 +1,7 @@
 package io.ipfs.kotlin
 
+import io.ktor.http.*
+import kotlinx.coroutines.test.runTest
 import okhttp3.mockwebserver.MockResponse
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.Test
@@ -7,9 +9,12 @@ import org.junit.Test
 class TestStats : BaseIPFSWebserverTest() {
 
     @Test
-    fun testBandWidthStats() {
+    fun testBandWidthStats() = runTest {
         // setup
-        server.enqueue(MockResponse().setBody("{\"TotalIn\":80461165,\"TotalOut\":70998948,\"RateIn\":1103.8830769540511,\"RateOut\":1814.6417381019044}\n"))
+        server.enqueue(
+            MockResponse().setHeader("Content-Type", ContentType.Application.Json)
+                .setBody("{\"TotalIn\":80461165,\"TotalOut\":70998948,\"RateIn\":1103.8830769540511,\"RateOut\":1814.6417381019044}\n")
+        )
 
         // invoke
         val statsBandWidth = ipfs.stats.bandWidth()

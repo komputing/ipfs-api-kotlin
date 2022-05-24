@@ -1,12 +1,16 @@
 package io.ipfs.kotlin
 
 import io.ipfs.kotlin.commands.*
+import io.ipfs.kotlin.defaults.createKTOR
 import io.ipfs.kotlin.defaults.createOKHTTP
 import io.ipfs.kotlin.model.MessageWithCode
+import io.ktor.client.*
 import okhttp3.OkHttpClient
 
 data class IPFSConfiguration(val base_url: String = "http://127.0.0.1:5001/api/v0/",
-                             val okHttpClient: OkHttpClient = createOKHTTP())
+                             val okHttpClient: OkHttpClient = createOKHTTP(),
+                             val ktorClient: HttpClient = createKTOR(),
+)
 
 open class IPFS(configuration: IPFSConfiguration) {
 
