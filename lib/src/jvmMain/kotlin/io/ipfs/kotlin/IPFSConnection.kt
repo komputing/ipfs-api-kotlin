@@ -20,7 +20,7 @@ open class IPFSConnection(val config: IPFSConfiguration) {
                 .url(config.base_url + cmd)
                 .build()
 
-        return config.okHttpClient.newCall(request).execute().body()!!
+        return config.okHttpClient.newCall(request).execute().body!!
     }
 
     fun setErrorByJSON(jsonString: String) {

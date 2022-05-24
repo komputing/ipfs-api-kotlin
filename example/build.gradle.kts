@@ -1,9 +1,10 @@
 plugins {
+    kotlin("jvm")
     application
 }
 
 application {
-    mainClassName = "org.kethereum.example_cli.ExampleCLIKt"
+    mainClass.set("io.ipfs.example_cli.ExampleCLIKt")
 }
 
 dependencies {

@@ -1,4 +1,0 @@
-include 'example'
-include 'lib'
-
-rootProject.name = 'ipfs-api-kotlin'

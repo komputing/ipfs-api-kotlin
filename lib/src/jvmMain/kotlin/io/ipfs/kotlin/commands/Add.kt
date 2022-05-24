@@ -4,6 +4,9 @@ import com.squareup.moshi.JsonAdapter
 import io.ipfs.kotlin.IPFSConnection
 import io.ipfs.kotlin.model.NamedHash
 import okhttp3.*
+import okhttp3.MediaType.Companion.toMediaType
+import okhttp3.RequestBody.Companion.asRequestBody
+import okhttp3.RequestBody.Companion.toRequestBody
 import java.io.File
 import java.net.URLEncoder
 
@@ -34,16 +37,16 @@ class Add(val ipfs: IPFSConnection) {
     private fun addFile(builder: MultipartBody.Builder, file: File, name: String, filename: String) {
 
         val encodedFileName = URLEncoder.encode(filename, "UTF-8")
-        val headers = Headers.of("Content-Disposition", "file; filename=\"$encodedFileName\"", "Content-Transfer-Encoding", "binary")
+        val headers = Headers.headersOf("Content-Disposition", "file; filename=\"$encodedFileName\"", "Content-Transfer-Encoding", "binary")
         if (file.isDirectory) {
             // add directory
-            builder.addPart(headers, RequestBody.create(MediaType.parse("application/x-directory"), ""))
+            builder.addPart(headers, "".toRequestBody("application/x-directory".toMediaType()))
             // add files and subdirectories
             for (f: File in file.listFiles()) {
                 addFile(builder, f, f.name, filename + "/" + f.name)
             }
         } else {
-            builder.addPart(headers, RequestBody.create(MediaType.parse("application/octet-stream"), file))
+            builder.addPart(headers, file.asRequestBody("application/octet-stream".toMediaType()))
         }
 
     }
@@ -51,7 +54,7 @@ class Add(val ipfs: IPFSConnection) {
     fun string(text: String, name: String = "string", filename: String = name): NamedHash {
 
         return addGeneric {
-            val body = RequestBody.create(MediaType.parse("application/octet-stream"), text)
+            val body = RequestBody.create("application/octet-stream".toMediaType(), text)
             it.addFormDataPart(name, filename, body)
         }.last()
         // there can be only one
@@ -69,7 +72,7 @@ class Add(val ipfs: IPFSConnection) {
                 .post(requestBody)
                 .build()
 
-        val response = ipfs.config.okHttpClient.newCall(request).execute().body()
+        val response = ipfs.config.okHttpClient.newCall(request).execute().body
 
         response.use { responseBody ->
             return responseBody!!.charStream().readLines().asSequence().map {
