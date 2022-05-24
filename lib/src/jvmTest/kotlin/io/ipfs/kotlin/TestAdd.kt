@@ -1,6 +1,7 @@
 package io.ipfs.kotlin
 
 import io.ktor.http.*
+import kotlinx.coroutines.test.runTest
 import okhttp3.mockwebserver.MockResponse
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.Test
@@ -11,7 +12,7 @@ import java.nio.file.Paths
 class TestAdd : BaseIPFSWebserverTest() {
 
     @Test
-    fun testAddString() {
+    fun testAddString() = runTest {
         // setup
         server.enqueue(
             MockResponse().setHeader("Content-Type", ContentType.Application.Json)
@@ -31,7 +32,7 @@ class TestAdd : BaseIPFSWebserverTest() {
     }
 
     @Test
-    fun testAddFile() {
+    fun testAddFile() = runTest  {
         // setup
         server.enqueue(
             MockResponse().setHeader("Content-Type", ContentType.Application.Json)
@@ -51,7 +52,7 @@ class TestAdd : BaseIPFSWebserverTest() {
     }
 
     @Test
-    fun testAddDirectory() {
+    fun testAddDirectory() = runTest  {
         // setup
         server.enqueue(
             MockResponse().setHeader("Content-Type", ContentType.Application.Json)

@@ -3,7 +3,6 @@ package io.ipfs.kotlin.commands
 import io.ipfs.kotlin.IPFSConnection
 import io.ipfs.kotlin.model.BandWidthInfo
 import io.ktor.client.call.*
-import io.ktor.http.*
 
 class Stats(val ipfs: IPFSConnection) {
 

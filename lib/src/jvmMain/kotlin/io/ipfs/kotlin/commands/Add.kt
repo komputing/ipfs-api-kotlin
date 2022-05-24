@@ -2,14 +2,11 @@ package io.ipfs.kotlin.commands
 
 import io.ipfs.kotlin.IPFSConnection
 import io.ipfs.kotlin.model.NamedHash
-import kotlinx.serialization.decodeFromString
-import kotlinx.serialization.json.Json
-import okhttp3.*
-import okhttp3.MediaType.Companion.toMediaType
-import okhttp3.RequestBody.Companion.asRequestBody
-import okhttp3.RequestBody.Companion.toRequestBody
+import io.ktor.client.call.*
+import io.ktor.client.request.*
+import io.ktor.client.request.forms.*
+import io.ktor.http.*
 import java.io.File
-import java.net.URLEncoder
 
 class Add(val ipfs: IPFSConnection) {
 
@@ -17,64 +14,67 @@ class Add(val ipfs: IPFSConnection) {
     // For directories we return the hash of the enclosing
     // directory because that makes the most sense, also for
     // consistency with the java-ipfs-api implementation.
-    fun file(file: File, name: String = "file", filename: String = name) = addGeneric {
-        addFile(it, file, name, filename)
+    suspend fun file(file: File, name: String = "file", filename: String = name) = addGeneric {
+        addFile(file, name, filename)
     }.last()
 
 
     // Accepts a single file or directory and returns the named hash.
     // Returns a collection of named hashes for the containing directory
     // and all sub-directories.
-    fun directory(file: File, name: String = "file", filename: String = name) = addGeneric {
-        addFile(it, file, name, filename)
+    suspend fun directory(file: File, name: String = "file", filename: String = name) = addGeneric {
+        addFile(file, name, filename)
     }
 
 
     // this has to be outside the lambda because it is reentrant to handle subdirectory structures
-    private fun addFile(builder: MultipartBody.Builder, file: File, name: String, filename: String) {
+    private fun FormBuilder.addFile(file: File, name: String, filename: String) {
 
-        val encodedFileName = URLEncoder.encode(filename, "UTF-8")
-        val headers = Headers.headersOf("Content-Disposition", "file; filename=\"$encodedFileName\"", "Content-Transfer-Encoding", "binary")
+        val encodedFileName = filename.encodeURLParameter()
+
+        val headersBuilder = HeadersBuilder()
+
+        headersBuilder.append(HttpHeaders.ContentDisposition, "file; filename=\"$encodedFileName\"")
+        headersBuilder.append("Content-Transfer-Encoding", "binary")
+
+
         if (file.isDirectory) {
             // add directory
-            builder.addPart(headers, "".toRequestBody("application/x-directory".toMediaType()))
+            headersBuilder.append(HttpHeaders.ContentType, ContentType("application", "x-directory"))
+            append("", "", headersBuilder.build())
+
             // add files and subdirectories
             for (f: File in file.listFiles()) {
-                addFile(builder, f, f.name, filename + "/" + f.name)
+                addFile(f, f.name, filename + "/" + f.name)
             }
         } else {
-            builder.addPart(headers, file.asRequestBody("application/octet-stream".toMediaType()))
+            headersBuilder.append(HttpHeaders.ContentType, ContentType.Application.OctetStream)
+            append(name, file.readBytes(), headersBuilder.build())
         }
 
     }
 
-    fun string(text: String, name: String = "string", filename: String = name): NamedHash {
+    suspend fun string(text: String, name: String = "string", filename: String = name): NamedHash {
 
         return addGeneric {
-            val body = RequestBody.create("application/octet-stream".toMediaType(), text)
-            it.addFormDataPart(name, filename, body)
+            append(name, text, Headers.build {
+                append(HttpHeaders.ContentType, ContentType.Application.OctetStream)
+                append(HttpHeaders.ContentDisposition, "filename=$filename")
+            })
         }.last()
         // there can be only one
 
     }
 
-    private fun addGeneric(withBuilder: (MultipartBody.Builder) -> Any): List<NamedHash> {
-
-        val builder = MultipartBody.Builder().setType(MultipartBody.FORM)
-        withBuilder(builder)
-        val requestBody = builder.build()
-
-        val request = Request.Builder()
-                .url("${ipfs.config.base_url}add?stream-channels=true&progress=false")
-                .post(requestBody)
-                .build()
-
-        val response = ipfs.config.okHttpClient.newCall(request).execute().body
-
-        response.use { responseBody ->
-            return responseBody!!.charStream().readLines().asSequence().map {
-                Json.decodeFromString<NamedHash>(it)
-            }.filterNotNull().toList()
+    private suspend fun addGeneric(withBuilder: FormBuilder.() -> Unit): List<NamedHash> {
+        val request = MultiPartFormDataContent(formData(withBuilder))
+        val result = ipfs.config.ktorClient.post("${ipfs.config.base_url}add?stream-channels=true&progress=false"){
+            setBody(request)
+        }
+        return try {
+            listOf(result.body())
+        } catch (_: Throwable){
+            result.body()
         }
     }
 }

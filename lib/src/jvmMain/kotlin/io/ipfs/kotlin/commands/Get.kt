@@ -3,7 +3,6 @@ package io.ipfs.kotlin.commands
 import io.ipfs.kotlin.IPFSConnection
 import io.ktor.client.statement.*
 import io.ktor.utils.io.jvm.javaio.*
-import okhttp3.ResponseBody
 import java.io.InputStream
 
 class Get(val ipfs: IPFSConnection) {
