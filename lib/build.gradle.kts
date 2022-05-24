@@ -22,7 +22,6 @@ kotlin {
                 implementation("io.ktor:ktor-client-okhttp:2.0.0")
                 implementation("io.ktor:ktor-client-content-negotiation:2.0.0")
                 implementation("io.ktor:ktor-serialization-kotlinx-json:2.0.0")
-                implementation("org.jetbrains.kotlin:kotlin-reflect:1.6.21")
                 api("com.squareup.okhttp3:okhttp:${Versions.okhttp}")
             }
         }
