@@ -26,8 +26,9 @@ kotlin {
             dependencies {
                 implementation(kotlin("test"))
                 implementation("org.mockito:mockito-core:3.3.3")
+                implementation("org.mockito:mockito-core:4.5.1")
                 implementation("com.squareup.okhttp3:mockwebserver:${Versions.okhttp}")
-                implementation("org.assertj:assertj-core:3.10.0")
+                implementation("org.assertj:assertj-core:3.22.0")
             }
         }
     }
