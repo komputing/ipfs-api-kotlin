@@ -1,19 +1,12 @@
 package io.ipfs.kotlin.commands
 
-import com.squareup.moshi.JsonAdapter
 import io.ipfs.kotlin.IPFSConnection
 import io.ipfs.kotlin.model.NameValue
 import io.ipfs.kotlin.model.Path
+import kotlinx.serialization.decodeFromString
+import kotlinx.serialization.json.Json
 
 class Name(val ipfs: IPFSConnection) {
-
-    private val adapter: JsonAdapter<NameValue> by lazy {
-        ipfs.config.moshi.adapter(NameValue::class.java)
-    }
-
-    private val pathAdapter: JsonAdapter<Path> by lazy {
-        ipfs.config.moshi.adapter(Path::class.java)
-    }
 
     fun publish(hash: String): String? {
         val resultString = ipfs.callCmd("name/publish/$hash").use { it.string() }
@@ -22,7 +15,7 @@ class Name(val ipfs: IPFSConnection) {
             ipfs.setErrorByJSON(resultString)
             return null
         }
-        return adapter.fromJson(resultString)?.Name
+        return Json.decodeFromString<NameValue>(resultString).Name
     }
 
     fun resolve(hash: String): String? {
@@ -30,7 +23,7 @@ class Name(val ipfs: IPFSConnection) {
 
         return when {
             resultString == null -> null
-            resultString.contains("Path") -> pathAdapter.fromJson(resultString)?.Path
+            resultString.contains("Path") -> Json.decodeFromString<Path>(resultString).Path
             else -> {
                 ipfs.setErrorByJSON(resultString)
                 null

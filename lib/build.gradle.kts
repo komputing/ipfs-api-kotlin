@@ -1,5 +1,6 @@
 plugins {
     kotlin("multiplatform")
+    kotlin("plugin.serialization")
     id("jacoco")
     id("com.github.ben-manes.versions")
 }
@@ -16,8 +17,7 @@ kotlin {
     sourceSets {
         val jvmMain by getting {
             dependencies {
-                // we can't yet use moshi 1.5.0 as we need @Json https://github.com/square/moshi/issues/315
-                api("com.squareup.moshi:moshi:1.4.0")
+                implementation("org.jetbrains.kotlinx:kotlinx-serialization-json:1.3.2")
                 api("com.squareup.okhttp3:okhttp:${Versions.okhttp}")
             }
         }

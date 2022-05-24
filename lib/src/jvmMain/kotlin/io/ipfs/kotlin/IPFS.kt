@@ -1,15 +1,12 @@
 package io.ipfs.kotlin
 
-import com.squareup.moshi.Moshi
 import io.ipfs.kotlin.commands.*
-import io.ipfs.kotlin.defaults.createMoshi
 import io.ipfs.kotlin.defaults.createOKHTTP
 import io.ipfs.kotlin.model.MessageWithCode
 import okhttp3.OkHttpClient
 
 data class IPFSConfiguration(val base_url: String = "http://127.0.0.1:5001/api/v0/",
-                             val okHttpClient: OkHttpClient = createOKHTTP(),
-                             val moshi: Moshi = createMoshi())
+                             val okHttpClient: OkHttpClient = createOKHTTP())
 
 open class IPFS(configuration: IPFSConfiguration) {
 

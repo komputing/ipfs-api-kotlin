@@ -1,8 +1,9 @@
 package io.ipfs.kotlin.commands
 
-import com.squareup.moshi.JsonAdapter
 import io.ipfs.kotlin.IPFSConnection
 import io.ipfs.kotlin.model.NamedHash
+import kotlinx.serialization.decodeFromString
+import kotlinx.serialization.json.Json
 import okhttp3.*
 import okhttp3.MediaType.Companion.toMediaType
 import okhttp3.RequestBody.Companion.asRequestBody
@@ -11,10 +12,6 @@ import java.io.File
 import java.net.URLEncoder
 
 class Add(val ipfs: IPFSConnection) {
-
-    private val adapter: JsonAdapter<NamedHash> by lazy {
-        ipfs.config.moshi.adapter(NamedHash::class.java)
-    }
 
     // Accepts a single file or directory and returns the named hash.
     // For directories we return the hash of the enclosing
@@ -76,7 +73,7 @@ class Add(val ipfs: IPFSConnection) {
 
         response.use { responseBody ->
             return responseBody!!.charStream().readLines().asSequence().map {
-                adapter.fromJson(it)
+                Json.decodeFromString<NamedHash>(it)
             }.filterNotNull().toList()
         }
     }

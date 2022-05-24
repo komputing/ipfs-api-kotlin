@@ -1,9 +1,10 @@
 package io.ipfs.kotlin.commands
 
-import com.squareup.moshi.JsonDataException
 import io.ipfs.kotlin.IPFSConnection
 import io.ipfs.kotlin.model.Key
 import io.ipfs.kotlin.model.KeyV2
+import kotlinx.serialization.decodeFromString
+import kotlinx.serialization.json.Json
 import okio.BufferedSource
 
 class Repo(val ipfs: IPFSConnection) {
@@ -13,11 +14,9 @@ class Repo(val ipfs: IPFSConnection) {
     fun listFromNDJson(source: BufferedSource): List<String> {
         val jsonString = source.readUtf8()
         return try {
-            val keyV2Adapter = ipfs.config.moshi.adapter(KeyV2::class.java)
-            jsonString.parseNDJSON { keyV2Adapter.fromJson(it)?.Key?.hash }
-        } catch (e: JsonDataException) {
-            val keyAdapter = ipfs.config.moshi.adapter(Key::class.java)
-            jsonString.parseNDJSON { keyAdapter.fromJson(it)?.Key }
+            jsonString.parseNDJSON { it?.let { Json.decodeFromString<KeyV2>(it).Key.hash } }
+        } catch (e: Throwable) {
+            jsonString.parseNDJSON { Json.decodeFromString<Key>(it!!).Key }
         }
     }
 
