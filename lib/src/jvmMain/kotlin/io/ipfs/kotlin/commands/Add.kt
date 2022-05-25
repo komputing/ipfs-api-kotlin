@@ -59,7 +59,7 @@ class Add(val ipfs: IPFSConnection) {
         return addGeneric {
             append(name, text, Headers.build {
                 append(HttpHeaders.ContentType, ContentType.Application.OctetStream)
-                append(HttpHeaders.ContentDisposition, "filename=$filename")
+                append(HttpHeaders.ContentDisposition, "filename=\"$filename\"")
             })
         }.last()
         // there can be only one
