@@ -6,6 +6,7 @@ plugins {
 }
 
 group = "com.github.ligi"
+version = "0.16"
 
 repositories {
     mavenCentral()
@@ -14,7 +15,7 @@ repositories {
 kotlin {
     val darwinTargets = arrayOf(
         "macosX64", "macosArm64",
-        "iosArm32", "iosArm64", "iosX64", "iosSimulatorArm64",
+        "iosArm64", "iosX64", "iosSimulatorArm64",
         "tvosArm64", "tvosX64", "tvosSimulatorArm64",
         "watchosArm32", "watchosArm64", "watchosX86", "watchosX64", "watchosSimulatorArm64",
     )
@@ -28,7 +29,6 @@ kotlin {
         }
     }
     js(IR) {
-        browser()
         nodejs()
     }
     for (target in nativeTargets) {
@@ -41,6 +41,7 @@ kotlin {
                 api("io.ktor:ktor-client-core:${Versions.ktor}")
                 implementation("io.ktor:ktor-client-content-negotiation:${Versions.ktor}")
                 implementation("io.ktor:ktor-serialization-kotlinx-json:${Versions.ktor}")
+                api("com.squareup.okio:okio:${Versions.okio}")
             }
         }
 
@@ -55,6 +56,7 @@ kotlin {
             dependsOn(commonMain)
             dependencies {
                 implementation("io.ktor:ktor-client-js:${Versions.ktor}")
+                implementation("com.squareup.okio:okio-nodefilesystem:${Versions.okio}")
             }
         }
 
@@ -69,9 +71,12 @@ kotlin {
                 implementation("org.assertj:assertj-core:3.22.0")
             }
         }
+        val nativeMain by creating {
+            dependsOn(commonMain)
+        }
 
         val darwinMain by creating {
-            dependsOn(commonMain)
+            dependsOn(nativeMain)
             dependencies {
                 implementation("io.ktor:ktor-client-darwin:${Versions.ktor}")
             }
@@ -82,7 +87,7 @@ kotlin {
             }
         }
         val linuxAndMingwMain by creating {
-            dependsOn(commonMain)
+            dependsOn(nativeMain)
             dependencies {
                 implementation("io.ktor:ktor-client-curl:${Versions.ktor}")
             }
@@ -93,5 +98,11 @@ kotlin {
             }
         }
 
+    }
+}
+
+tasks.withType<org.jetbrains.kotlin.gradle.tasks.KotlinCompile> {
+    kotlinOptions {
+        jvmTarget = "11"
     }
 }

@@ -4,6 +4,7 @@ import io.ktor.client.*
 import io.ktor.client.plugins.contentnegotiation.*
 import io.ktor.serialization.kotlinx.json.*
 import kotlinx.serialization.json.Json
+import okio.FileSystem
 
 
 internal fun createKTOR() = HttpClient {
@@ -13,5 +14,7 @@ internal fun createKTOR() = HttpClient {
         })
     }
 }
+
+expect internal fun createFileSystem() : FileSystem
 
 

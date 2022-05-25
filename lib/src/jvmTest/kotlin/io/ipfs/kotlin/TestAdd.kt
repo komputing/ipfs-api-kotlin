@@ -3,6 +3,7 @@ package io.ipfs.kotlin
 import io.ktor.http.*
 import kotlinx.coroutines.test.runTest
 import okhttp3.mockwebserver.MockResponse
+import okio.Path.Companion.toOkioPath
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.Test
 import java.io.File
@@ -40,7 +41,7 @@ class TestAdd : BaseIPFSWebserverTest() {
         )
 
         // invoke
-        val addString = ipfs.add.file(File.createTempFile("temptestfile", null))
+        val addString = ipfs.add.file(File.createTempFile("temptestfile", null).toOkioPath())
 
         // assert
         assertThat(addString.Hash).isEqualTo("hashprobe")
@@ -69,7 +70,7 @@ class TestAdd : BaseIPFSWebserverTest() {
         val dttf2 = File.createTempFile("dirtemptestfile2", null, path.toFile())
         dttf2.writeText("Contents of temptestdir/dirtemptestfile2")
 
-        val result = ipfs.add.directory(path.toFile(), path.fileName.toString())
+        val result = ipfs.add.directory(path.toOkioPath(), path.fileName.toString())
 
         // assert
         assertThat(result.first().Hash).isEqualTo("hashprobe")

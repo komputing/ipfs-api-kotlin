@@ -6,4 +6,5 @@ object Versions {
     const val okhttp = "4.9.3"
     const val coroutines = "1.6.1"
     const val ktor = "2.0.0"
+    const val okio = "3.1.0"
 }

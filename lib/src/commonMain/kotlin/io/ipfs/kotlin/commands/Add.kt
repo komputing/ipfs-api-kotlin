@@ -6,7 +6,7 @@ import io.ktor.client.call.*
 import io.ktor.client.request.*
 import io.ktor.client.request.forms.*
 import io.ktor.http.*
-import java.io.File
+import okio.Path
 
 class Add(val ipfs: IPFSConnection) {
 
@@ -14,7 +14,7 @@ class Add(val ipfs: IPFSConnection) {
     // For directories we return the hash of the enclosing
     // directory because that makes the most sense, also for
     // consistency with the java-ipfs-api implementation.
-    suspend fun file(file: File, name: String = "file", filename: String = name) = addGeneric {
+    suspend fun file(file: Path, name: String = "file", filename: String = name) = addGeneric {
         addFile(file, name, filename)
     }.last()
 
@@ -22,13 +22,13 @@ class Add(val ipfs: IPFSConnection) {
     // Accepts a single file or directory and returns the named hash.
     // Returns a collection of named hashes for the containing directory
     // and all sub-directories.
-    suspend fun directory(file: File, name: String = "file", filename: String = name) = addGeneric {
-        addFile(file, name, filename)
+    suspend fun directory(path: Path, name: String = "file", filename: String = name) = addGeneric {
+        addFile(path, name, filename)
     }
 
 
     // this has to be outside the lambda because it is reentrant to handle subdirectory structures
-    private fun FormBuilder.addFile(file: File, name: String, filename: String) {
+    private fun FormBuilder.addFile(path: Path, name: String, filename: String) {
 
         val encodedFileName = filename.encodeURLParameter()
 
@@ -36,20 +36,22 @@ class Add(val ipfs: IPFSConnection) {
 
         headersBuilder.append(HttpHeaders.ContentDisposition, "filename=\"$encodedFileName\"")
         headersBuilder.append("Content-Transfer-Encoding", "binary")
-
-
-        if (file.isDirectory) {
+        val dirFiles = ipfs.config.fileSystem.listOrNull(path)
+        val isDir = dirFiles?.isNotEmpty() ?: false
+        if (isDir) {
             // add directory
             headersBuilder.append(HttpHeaders.ContentType, ContentType("application", "x-directory"))
             append("", "", headersBuilder.build())
 
             // add files and subdirectories
-            for (f: File in file.listFiles()) {
-                addFile(f, f.name, filename + "/" + f.name)
+            for (p: Path in dirFiles!!) {
+                addFile(p, p.name, filename + "/" + p.name)
             }
         } else {
             headersBuilder.append(HttpHeaders.ContentType, ContentType.Application.OctetStream)
-            append(name, file.readBytes(), headersBuilder.build())
+            ipfs.config.fileSystem.read(path) {
+                append(name, this.readByteArray(), headersBuilder.build())
+            }
         }
 
     }
