@@ -15,14 +15,19 @@ kotlin {
     jvm()
 
     sourceSets {
-        val jvmMain by getting {
+        val commonMain by getting {
             dependencies {
                 implementation("org.jetbrains.kotlinx:kotlinx-serialization-json:1.3.2")
                 api("io.ktor:ktor-client-core:2.0.0")
                 implementation("io.ktor:ktor-client-okhttp:2.0.0")
                 implementation("io.ktor:ktor-client-content-negotiation:2.0.0")
                 implementation("io.ktor:ktor-serialization-kotlinx-json:2.0.0")
-                api("com.squareup.okhttp3:okhttp:${Versions.okhttp}")
+            }
+        }
+
+        val jvmMain by getting {
+            dependencies {
+                implementation("io.ktor:ktor-client-okhttp:2.0.0")
             }
         }
 
