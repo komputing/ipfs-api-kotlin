@@ -12,8 +12,28 @@ repositories {
 }
 
 kotlin {
-    jvm()
+    val darwinTargets = arrayOf(
+        "macosX64", "macosArm64",
+        "iosArm32", "iosArm64", "iosX64", "iosSimulatorArm64",
+        "tvosArm64", "tvosX64", "tvosSimulatorArm64",
+        "watchosArm32", "watchosArm64", "watchosX86", "watchosX64", "watchosSimulatorArm64",
+    )
+    val linuxTargets = arrayOf("linuxX64", /*"linuxArm64"*/)
+    val mingwTargets = arrayOf("mingwX64")
+    val nativeTargets = linuxTargets + darwinTargets + mingwTargets
 
+    jvm {
+        compilations.all {
+            kotlinOptions.jvmTarget = "11"
+        }
+    }
+    js(IR) {
+        browser()
+        nodejs()
+    }
+    for (target in nativeTargets) {
+        targets.add(presets.getByName(target).createTarget(target))
+    }
     sourceSets {
         val commonMain by getting {
             dependencies {
@@ -31,6 +51,14 @@ kotlin {
             }
         }
 
+        val jsMain by getting {
+            dependsOn(commonMain)
+            dependencies {
+                implementation("io.ktor:ktor-client-js:${Versions.ktor}")
+            }
+        }
+
+
         val jvmTest by getting {
             dependencies {
                 implementation(kotlin("test"))
@@ -41,5 +69,29 @@ kotlin {
                 implementation("org.assertj:assertj-core:3.22.0")
             }
         }
+
+        val darwinMain by creating {
+            dependsOn(commonMain)
+            dependencies {
+                implementation("io.ktor:ktor-client-darwin:${Versions.ktor}")
+            }
+        }
+        darwinTargets.forEach { target ->
+            getByName("${target}Main") {
+                dependsOn(darwinMain)
+            }
+        }
+        val linuxAndMingwMain by creating {
+            dependsOn(commonMain)
+            dependencies {
+                implementation("io.ktor:ktor-client-curl:${Versions.ktor}")
+            }
+        }
+        (mingwTargets + linuxTargets).forEach { target ->
+            getByName("${target}Main") {
+                dependsOn(linuxAndMingwMain)
+            }
+        }
+
     }
 }
