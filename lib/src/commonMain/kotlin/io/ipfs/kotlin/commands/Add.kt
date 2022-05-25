@@ -34,7 +34,7 @@ class Add(val ipfs: IPFSConnection) {
 
         val headersBuilder = HeadersBuilder()
 
-        headersBuilder.append(HttpHeaders.ContentDisposition, "file; filename=\"$encodedFileName\"")
+        headersBuilder.append(HttpHeaders.ContentDisposition, "filename=\"$encodedFileName\"")
         headersBuilder.append("Content-Transfer-Encoding", "binary")
 
 
