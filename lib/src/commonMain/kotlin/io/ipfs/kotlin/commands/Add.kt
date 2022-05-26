@@ -6,22 +6,38 @@ import io.ktor.client.call.*
 import io.ktor.client.request.*
 import io.ktor.client.request.forms.*
 import io.ktor.http.*
+import okio.BufferedSource
 import okio.Path
 
 class Add(val ipfs: IPFSConnection) {
 
-    // Accepts a single file or directory and returns the named hash.
-    // For directories we return the hash of the enclosing
-    // directory because that makes the most sense, also for
-    // consistency with the java-ipfs-api implementation.
+    /*** Accepts a single file or directory and returns the named hash.
+     * For directories, we return the hash of the enclosing
+     * directory because that makes the most sense, also for
+     * consistency with the java-ipfs-api implementation.
+    **/
     suspend fun file(file: Path, name: String = "file", filename: String = name) = addGeneric {
         addFile(file, name, filename)
     }.last()
 
+    /***
+     * Accepts a single file's BufferedSource and returns the named hash.
+     **/
+    suspend fun file(source: BufferedSource, name: String = "file", filename: String = name) = addGeneric {
+        val encodedFileName = filename.encodeURLParameter()
+        val headersBuilder = HeadersBuilder()
+        headersBuilder.append(HttpHeaders.ContentDisposition, "filename=\"$encodedFileName\"")
+        headersBuilder.append("Content-Transfer-Encoding", "binary")
+        headersBuilder.append(HttpHeaders.ContentType, ContentType.Application.OctetStream)
+        append(name, source.readByteArray(), headersBuilder.build())
+    }.last()
 
-    // Accepts a single file or directory and returns the named hash.
-    // Returns a collection of named hashes for the containing directory
-    // and all sub-directories.
+
+    /***
+     * Accepts a single file or directory and returns the named hash.
+     * Returns a collection of named hashes for the containing directory
+     * and all sub-directories.
+     */
     suspend fun directory(path: Path, name: String = "file", filename: String = name) = addGeneric {
         addFile(path, name, filename)
     }
@@ -29,13 +45,11 @@ class Add(val ipfs: IPFSConnection) {
 
     // this has to be outside the lambda because it is reentrant to handle subdirectory structures
     private fun FormBuilder.addFile(path: Path, name: String, filename: String) {
-
         val encodedFileName = filename.encodeURLParameter()
-
         val headersBuilder = HeadersBuilder()
-
         headersBuilder.append(HttpHeaders.ContentDisposition, "filename=\"$encodedFileName\"")
         headersBuilder.append("Content-Transfer-Encoding", "binary")
+
         val dirFiles = ipfs.config.fileSystem.listOrNull(path)
         val isDir = dirFiles?.isNotEmpty() ?: false
         if (isDir) {
@@ -70,12 +84,12 @@ class Add(val ipfs: IPFSConnection) {
 
     private suspend fun addGeneric(withBuilder: FormBuilder.() -> Unit): List<NamedHash> {
         val request = MultiPartFormDataContent(formData(withBuilder))
-        val result = ipfs.config.ktorClient.post("${ipfs.config.base_url}add?stream-channels=true&progress=false"){
+        val result = ipfs.config.ktorClient.post("${ipfs.config.base_url}add?stream-channels=true&progress=false") {
             setBody(request)
         }
         return try {
             listOf(result.body())
-        } catch (_: Throwable){
+        } catch (_: Throwable) {
             result.body()
         }
     }
