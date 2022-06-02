@@ -21,4 +21,4 @@ dependencyResolutionManagement {
 }
 
 include("example")
-include("lib")
+include("ipfs-api")

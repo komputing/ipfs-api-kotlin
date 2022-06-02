@@ -3,10 +3,12 @@ plugins {
     kotlin("plugin.serialization")
     id("jacoco")
     id("com.github.ben-manes.versions")
+    id("maven-publish")
 }
 
 group = "com.github.ligi"
 version = "0.16"
+
 
 repositories {
     mavenCentral()

@@ -8,5 +8,5 @@ application {
 }
 
 dependencies {
-    implementation(project(":lib"))
+    implementation(project(":ipfs-api"))
 }
