@@ -14,10 +14,10 @@ import kotlinx.serialization.json.Json
 import okio.BufferedSource
 import okio.Path
 
-data class AddUploadProgress(val bytesSent: Long, val byteSize: Long)
-data class AddProcessedProgress(var bytesProcessed: Long, val byteSize: Long)
+data class UploadProgress(val bytesSent: Long, val byteSize: Long)
+data class AddProgress(var bytesProcessed: Long, val byteSize: Long)
 
-typealias AddProgressCallback = ((AddUploadProgress?, AddProcessedProgress?) -> Unit)
+typealias UploadAndAddProgressListener = ((UploadProgress?, AddProgress?) -> Unit)
 
 class Add(val ipfs: IPFSConnection) {
 
@@ -30,7 +30,7 @@ class Add(val ipfs: IPFSConnection) {
         file: Path,
         name: String = "file",
         filename: String = name,
-        progressCallback: AddProgressCallback? = null
+        progressCallback: UploadAndAddProgressListener? = null
     ) = addGeneric(progressCallback) {
         println(ipfs.config.fileSystem.openReadOnly(file).size())
         addFile(file, name, filename)
@@ -43,7 +43,7 @@ class Add(val ipfs: IPFSConnection) {
         source: BufferedSource,
         name: String = "file",
         filename: String = name,
-        progressCallback: AddProgressCallback? = null
+        progressCallback: UploadAndAddProgressListener? = null
     ) = addGeneric(progressCallback) {
         val encodedFileName = filename.encodeURLParameter()
         val headersBuilder = HeadersBuilder()
@@ -104,7 +104,7 @@ class Add(val ipfs: IPFSConnection) {
     }
 
     private suspend fun addGeneric(
-        progressCallback: AddProgressCallback?,
+        progressCallback: UploadAndAddProgressListener?,
         withBuilder: FormBuilder.() -> Unit
     ): List<NamedResponse> {
         val request = MultiPartFormDataContent(formData(withBuilder))
@@ -112,30 +112,29 @@ class Add(val ipfs: IPFSConnection) {
         val result: List<NamedResponse> =
             ipfs.config.ktorClient.preparePost("${ipfs.config.base_url}add?progress=$progress") {
                 onUpload { bytesSentTotal, contentLength ->
-                    val uploadProgress = AddUploadProgress(bytesSentTotal, contentLength)
+                    val uploadProgress = UploadProgress(bytesSentTotal, contentLength)
                     progressCallback?.invoke(uploadProgress, null)
                 }
                 setBody(request)
             }.execute { httpResponse ->
                 // todo: figure out how to calculate the total size returned by ipfs before add completion. This isn't really correct to set byteSize with content length. Ipfs returns a slightly larger final number
-                val processedProgress =
-                    httpResponse.call.request.content.contentLength?.let { AddProcessedProgress(0, it) }
-
+                val ipfsAddProgress =
+                    httpResponse.call.request.content.contentLength?.let { AddProgress(0, it) }
+                val addResults = mutableListOf<NamedResponse>()
                 val channel = httpResponse.bodyAsChannel()
                 while (!channel.isClosedForRead) {
                     val progressNamedResponse: NamedResponse? =
                         channel.readUTF8Line()?.let { Json.decodeFromString(it) }
-                    progressNamedResponse?.size
-                    processedProgress?.bytesProcessed =
-                        progressNamedResponse?.bytes ?: progressNamedResponse?.size?.toLong() ?: 0
-                    progressCallback?.invoke(null, processedProgress)
+                    if (progressNamedResponse?.bytes != null) {
+                        ipfsAddProgress?.bytesProcessed = progressNamedResponse.bytes
+                    } else if (progressNamedResponse?.hash != null) {
+                        ipfsAddProgress?.bytesProcessed = progressNamedResponse.size!!.toLong()
+                        addResults.add(progressNamedResponse)
+                    }
+                    progressCallback?.invoke(null, ipfsAddProgress)
                 }
 
-                return@execute try {
-                    listOf(httpResponse.body())
-                } catch (_: Throwable) {
-                    httpResponse.body()
-                }
+                return@execute addResults
             }
         return result
     }
