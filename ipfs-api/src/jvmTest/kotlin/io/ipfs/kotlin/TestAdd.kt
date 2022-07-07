@@ -17,7 +17,7 @@ class TestAdd : BaseIPFSWebserverTest() {
         // setup
         server.enqueue(
             MockResponse().setHeader("Content-Type", ContentType.Application.Json)
-                .setBody("{\"Hash\":\"hashprobe\",\"Name\":\"nameprobe\"}")
+                .setBody("""{"Hash":"hashprobe","Name":"nameprobe", "Size":"1"}""")
         )
 
         // invoke
@@ -37,7 +37,7 @@ class TestAdd : BaseIPFSWebserverTest() {
         // setup
         server.enqueue(
             MockResponse().setHeader("Content-Type", ContentType.Application.Json)
-                .setBody("{\"Hash\":\"hashprobe\",\"Name\":\"nameprobe\"}")
+                .setBody("""{"Hash":"hashprobe","Name":"nameprobe", "Size":"1"}""")
         )
 
         // invoke
@@ -57,7 +57,7 @@ class TestAdd : BaseIPFSWebserverTest() {
         // setup
         server.enqueue(
             MockResponse().setHeader("Content-Type", ContentType.Application.Json)
-                .setBody("{\"Hash\":\"hashprobe\",\"Name\":\"nameprobe\"}")
+                .setBody("""{"Hash":"hashprobe","Name":"nameprobe", "Size":"1"}""")
         );
 
         // create nested subdirectories
