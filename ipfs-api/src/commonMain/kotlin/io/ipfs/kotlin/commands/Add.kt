@@ -36,15 +36,14 @@ class Add(val ipfs: IPFSConnection) {
         filename: String = name,
         progressListener: UploadAndAddProgressListener? = null
     ) = addGeneric(progressListener) {
-        println(ipfs.config.fileSystem.openReadOnly(file).size())
         addFile(file, name, filename)
     }.last()
 
     /***
-     * Accepts a single file's BufferedSource and returns the named hash.
+     * Accepts a single file's ByteArray and returns the named hash.
      **/
     suspend fun file(
-        source: BufferedSource,
+        source: ByteArray,
         name: String = "file",
         filename: String = name,
         progressListener: UploadAndAddProgressListener? = null
@@ -54,7 +53,7 @@ class Add(val ipfs: IPFSConnection) {
         headersBuilder.append(HttpHeaders.ContentDisposition, "filename=\"$encodedFileName\"")
         headersBuilder.append("Content-Transfer-Encoding", "binary")
         headersBuilder.append(HttpHeaders.ContentType, ContentType.Application.OctetStream)
-        append(name, source.readByteArray(), headersBuilder.build())
+        append(name, source, headersBuilder.build())
     }.last()
 
 
