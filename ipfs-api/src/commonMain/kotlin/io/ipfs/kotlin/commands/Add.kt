@@ -17,7 +17,7 @@ import okio.Path
 data class UploadProgress(val bytesSent: Long, val byteSize: Long) {
     val percentage =  (bytesSent.toDouble() / byteSize.toDouble()) * 100.0
 }
-data class AddProgress(var bytesProcessed: Long, val byteSize: Long) {
+data class AddProgress(val bytesProcessed: Long, val byteSize: Long) {
     val percentage =  (bytesProcessed.toDouble() / byteSize.toDouble()) * 100.0
 }
 
@@ -121,18 +121,20 @@ class Add(val ipfs: IPFSConnection) {
                 setBody(request)
             }.execute { httpResponse ->
                 // todo: figure out how to calculate the total size returned by ipfs before add completion. This isn't really correct to set byteSize with content length. Ipfs returns a slightly larger final number
-                val ipfsAddProgress =
-                    httpResponse.call.request.content.contentLength?.let { AddProgress(0, it) }
+                val contentLength =
+                    httpResponse.call.request.content.contentLength
                 val addResults = mutableListOf<NamedResponse>()
                 val channel = httpResponse.bodyAsChannel()
                 while (!channel.isClosedForRead) {
                     val progressNamedResponse: NamedResponse? =
                         channel.readUTF8Line()?.let { Json.decodeFromString(it) }
-                    if (progressNamedResponse?.bytes != null) {
-                        ipfsAddProgress?.bytesProcessed = progressNamedResponse.bytes
+                    val ipfsAddProgress = if (progressNamedResponse?.bytes != null) {
+                        contentLength?.let { AddProgress(progressNamedResponse.bytes, it) }
                     } else if (progressNamedResponse?.hash != null) {
-                        ipfsAddProgress?.bytesProcessed = progressNamedResponse.size!!.toLong()
                         addResults.add(progressNamedResponse)
+                        contentLength?.let { AddProgress(progressNamedResponse.size!!.toLong(), it) }
+                    } else {
+                        null
                     }
                     progressListener?.invoke(null, ipfsAddProgress)
                 }
