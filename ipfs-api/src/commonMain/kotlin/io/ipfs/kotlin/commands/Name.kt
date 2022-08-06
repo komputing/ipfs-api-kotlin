@@ -20,10 +20,10 @@ class Name(val ipfs: IPFSConnection) {
     }
 
     suspend fun resolve(hash: String): String? {
-        val resultString = ipfs.callCmd("name/resolve/$hash").let { it.bodyAsText() }
+        val resultString = ipfs.callCmd("name/resolve/$hash").bodyAsText()
 
         return when {
-            resultString == null -> null
+            resultString.isBlank() -> null
             resultString.contains("Path") -> Json.decodeFromString<Path>(resultString).Path
             else -> {
                 ipfs.setErrorByJSON(resultString)

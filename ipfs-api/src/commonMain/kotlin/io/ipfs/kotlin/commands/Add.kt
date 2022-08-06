@@ -1,13 +1,27 @@
 package io.ipfs.kotlin.commands
 
 import io.ipfs.kotlin.IPFSConnection
-import io.ipfs.kotlin.model.NamedHash
+import io.ipfs.kotlin.model.NamedResponse
 import io.ktor.client.call.*
+import io.ktor.client.plugins.*
 import io.ktor.client.request.*
 import io.ktor.client.request.forms.*
+import io.ktor.client.statement.*
 import io.ktor.http.*
+import io.ktor.utils.io.*
+import kotlinx.serialization.decodeFromString
+import kotlinx.serialization.json.Json
 import okio.BufferedSource
 import okio.Path
+
+data class UploadProgress(val bytesSent: Long, val byteSize: Long) {
+    val percentage =  (bytesSent.toDouble() / byteSize.toDouble()) * 100.0
+}
+data class AddProgress(val bytesProcessed: Long, val byteSize: Long) {
+    val percentage =  (bytesProcessed.toDouble() / byteSize.toDouble()) * 100.0
+}
+
+typealias UploadAndAddProgressListener = ((UploadProgress?, AddProgress?) -> Unit)
 
 class Add(val ipfs: IPFSConnection) {
 
@@ -15,21 +29,31 @@ class Add(val ipfs: IPFSConnection) {
      * For directories, we return the hash of the enclosing
      * directory because that makes the most sense, also for
      * consistency with the java-ipfs-api implementation.
-    **/
-    suspend fun file(file: Path, name: String = "file", filename: String = name) = addGeneric {
+     **/
+    suspend fun file(
+        file: Path,
+        name: String = "file",
+        filename: String = name,
+        progressListener: UploadAndAddProgressListener? = null
+    ) = addGeneric(progressListener) {
         addFile(file, name, filename)
     }.last()
 
     /***
-     * Accepts a single file's BufferedSource and returns the named hash.
+     * Accepts a single file's ByteArray and returns the named hash.
      **/
-    suspend fun file(source: BufferedSource, name: String = "file", filename: String = name) = addGeneric {
+    suspend fun file(
+        source: ByteArray,
+        name: String = "file",
+        filename: String = name,
+        progressListener: UploadAndAddProgressListener? = null
+    ) = addGeneric(progressListener) {
         val encodedFileName = filename.encodeURLParameter()
         val headersBuilder = HeadersBuilder()
         headersBuilder.append(HttpHeaders.ContentDisposition, "filename=\"$encodedFileName\"")
         headersBuilder.append("Content-Transfer-Encoding", "binary")
         headersBuilder.append(HttpHeaders.ContentType, ContentType.Application.OctetStream)
-        append(name, source.readByteArray(), headersBuilder.build())
+        append(name, source, headersBuilder.build())
     }.last()
 
 
@@ -38,7 +62,7 @@ class Add(val ipfs: IPFSConnection) {
      * Returns a collection of named hashes for the containing directory
      * and all sub-directories.
      */
-    suspend fun directory(path: Path, name: String = "file", filename: String = name) = addGeneric {
+    suspend fun directory(path: Path, name: String = "file", filename: String = name) = addGeneric(null) {
         addFile(path, name, filename)
     }
 
@@ -70,9 +94,9 @@ class Add(val ipfs: IPFSConnection) {
 
     }
 
-    suspend fun string(text: String, name: String = "string", filename: String = name): NamedHash {
+    suspend fun string(text: String, name: String = "string", filename: String = name): NamedResponse {
 
-        return addGeneric {
+        return addGeneric(null) {
             append(name, text, Headers.build {
                 append(HttpHeaders.ContentType, ContentType.Application.OctetStream)
                 append(HttpHeaders.ContentDisposition, "filename=\"$filename\"")
@@ -82,15 +106,41 @@ class Add(val ipfs: IPFSConnection) {
 
     }
 
-    private suspend fun addGeneric(withBuilder: FormBuilder.() -> Unit): List<NamedHash> {
+    private suspend fun addGeneric(
+        progressListener: UploadAndAddProgressListener?,
+        withBuilder: FormBuilder.() -> Unit
+    ): List<NamedResponse> {
         val request = MultiPartFormDataContent(formData(withBuilder))
-        val result = ipfs.config.ktorClient.post("${ipfs.config.base_url}add?stream-channels=true&progress=false") {
-            setBody(request)
-        }
-        return try {
-            listOf(result.body())
-        } catch (_: Throwable) {
-            result.body()
-        }
+        val progress = progressListener != null
+        val result: List<NamedResponse> =
+            ipfs.config.ktorClient.preparePost("${ipfs.config.base_url}add?progress=$progress") {
+                onUpload { bytesSentTotal, contentLength ->
+                    val uploadProgress = UploadProgress(bytesSentTotal, contentLength)
+                    progressListener?.invoke(uploadProgress, null)
+                }
+                setBody(request)
+            }.execute { httpResponse ->
+                // todo: figure out how to calculate the total size returned by ipfs before add completion. This isn't really correct to set byteSize with content length. Ipfs returns a slightly larger final number
+                val contentLength =
+                    httpResponse.call.request.content.contentLength
+                val addResults = mutableListOf<NamedResponse>()
+                val channel = httpResponse.bodyAsChannel()
+                while (!channel.isClosedForRead) {
+                    val progressNamedResponse: NamedResponse? =
+                        channel.readUTF8Line()?.let { Json.decodeFromString(it) }
+                    val ipfsAddProgress = if (progressNamedResponse?.bytes != null) {
+                        contentLength?.let { AddProgress(progressNamedResponse.bytes, it) }
+                    } else if (progressNamedResponse?.hash != null) {
+                        addResults.add(progressNamedResponse)
+                        contentLength?.let { AddProgress(progressNamedResponse.size!!.toLong(), it) }
+                    } else {
+                        null
+                    }
+                    progressListener?.invoke(null, ipfsAddProgress)
+                }
+
+                return@execute addResults
+            }
+        return result
     }
 }

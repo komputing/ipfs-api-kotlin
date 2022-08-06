@@ -17,15 +17,15 @@ class TestAdd : BaseIPFSWebserverTest() {
         // setup
         server.enqueue(
             MockResponse().setHeader("Content-Type", ContentType.Application.Json)
-                .setBody("{\"Hash\":\"hashprobe\",\"Name\":\"nameprobe\"}")
+                .setBody("""{"Hash":"hashprobe","Name":"nameprobe", "Size":"1"}""")
         )
 
         // invoke
         val addString = ipfs.add.string("foo")
 
         // assert
-        assertThat(addString.Hash).isEqualTo("hashprobe")
-        assertThat(addString.Name).isEqualTo("nameprobe")
+        assertThat(addString.hash).isEqualTo("hashprobe")
+        assertThat(addString.name).isEqualTo("nameprobe")
 
         val executedRequest = server.takeRequest();
         assertThat(executedRequest.path).startsWith("/add")
@@ -37,15 +37,15 @@ class TestAdd : BaseIPFSWebserverTest() {
         // setup
         server.enqueue(
             MockResponse().setHeader("Content-Type", ContentType.Application.Json)
-                .setBody("{\"Hash\":\"hashprobe\",\"Name\":\"nameprobe\"}")
+                .setBody("""{"Hash":"hashprobe","Name":"nameprobe", "Size":"1"}""")
         )
 
         // invoke
         val addString = ipfs.add.file(File.createTempFile("temptestfile", null).toOkioPath())
 
         // assert
-        assertThat(addString.Hash).isEqualTo("hashprobe")
-        assertThat(addString.Name).isEqualTo("nameprobe")
+        assertThat(addString.hash).isEqualTo("hashprobe")
+        assertThat(addString.name).isEqualTo("nameprobe")
 
         val executedRequest = server.takeRequest();
         assertThat(executedRequest.path).startsWith("/add");
@@ -57,7 +57,7 @@ class TestAdd : BaseIPFSWebserverTest() {
         // setup
         server.enqueue(
             MockResponse().setHeader("Content-Type", ContentType.Application.Json)
-                .setBody("{\"Hash\":\"hashprobe\",\"Name\":\"nameprobe\"}")
+                .setBody("""{"Hash":"hashprobe","Name":"nameprobe", "Size":"1"}""")
         );
 
         // create nested subdirectories
@@ -73,8 +73,8 @@ class TestAdd : BaseIPFSWebserverTest() {
         val result = ipfs.add.directory(path.toOkioPath(), path.fileName.toString())
 
         // assert
-        assertThat(result.first().Hash).isEqualTo("hashprobe")
-        assertThat(result.first().Name).isEqualTo("nameprobe")
+        assertThat(result.first().hash).isEqualTo("hashprobe")
+        assertThat(result.first().name).isEqualTo("nameprobe")
 
         val executedRequest = server.takeRequest()
         val body = executedRequest.body.readUtf8()
