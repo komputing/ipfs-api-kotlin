@@ -14,8 +14,12 @@ import kotlinx.serialization.json.Json
 import okio.BufferedSource
 import okio.Path
 
-data class UploadProgress(val bytesSent: Long, val byteSize: Long)
-data class AddProgress(var bytesProcessed: Long, val byteSize: Long)
+data class UploadProgress(val bytesSent: Long, val byteSize: Long) {
+    val percentage =  (bytesSent.toDouble() / byteSize.toDouble()) * 100.0
+}
+data class AddProgress(var bytesProcessed: Long, val byteSize: Long) {
+    val percentage =  (bytesProcessed.toDouble() / byteSize.toDouble()) * 100.0
+}
 
 typealias UploadAndAddProgressListener = ((UploadProgress?, AddProgress?) -> Unit)
 
@@ -30,8 +34,8 @@ class Add(val ipfs: IPFSConnection) {
         file: Path,
         name: String = "file",
         filename: String = name,
-        progressCallback: UploadAndAddProgressListener? = null
-    ) = addGeneric(progressCallback) {
+        progressListener: UploadAndAddProgressListener? = null
+    ) = addGeneric(progressListener) {
         println(ipfs.config.fileSystem.openReadOnly(file).size())
         addFile(file, name, filename)
     }.last()
@@ -43,8 +47,8 @@ class Add(val ipfs: IPFSConnection) {
         source: BufferedSource,
         name: String = "file",
         filename: String = name,
-        progressCallback: UploadAndAddProgressListener? = null
-    ) = addGeneric(progressCallback) {
+        progressListener: UploadAndAddProgressListener? = null
+    ) = addGeneric(progressListener) {
         val encodedFileName = filename.encodeURLParameter()
         val headersBuilder = HeadersBuilder()
         headersBuilder.append(HttpHeaders.ContentDisposition, "filename=\"$encodedFileName\"")
@@ -104,16 +108,16 @@ class Add(val ipfs: IPFSConnection) {
     }
 
     private suspend fun addGeneric(
-        progressCallback: UploadAndAddProgressListener?,
+        progressListener: UploadAndAddProgressListener?,
         withBuilder: FormBuilder.() -> Unit
     ): List<NamedResponse> {
         val request = MultiPartFormDataContent(formData(withBuilder))
-        val progress = progressCallback != null
+        val progress = progressListener != null
         val result: List<NamedResponse> =
             ipfs.config.ktorClient.preparePost("${ipfs.config.base_url}add?progress=$progress") {
                 onUpload { bytesSentTotal, contentLength ->
                     val uploadProgress = UploadProgress(bytesSentTotal, contentLength)
-                    progressCallback?.invoke(uploadProgress, null)
+                    progressListener?.invoke(uploadProgress, null)
                 }
                 setBody(request)
             }.execute { httpResponse ->
@@ -131,7 +135,7 @@ class Add(val ipfs: IPFSConnection) {
                         ipfsAddProgress?.bytesProcessed = progressNamedResponse.size!!.toLong()
                         addResults.add(progressNamedResponse)
                     }
-                    progressCallback?.invoke(null, ipfsAddProgress)
+                    progressListener?.invoke(null, ipfsAddProgress)
                 }
 
                 return@execute addResults
