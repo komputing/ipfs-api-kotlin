@@ -1,6 +1,7 @@
 package io.ipfs.kotlin.defaults
 
 import io.ktor.client.*
+import io.ktor.client.plugins.*
 import io.ktor.client.plugins.contentnegotiation.*
 import io.ktor.serialization.kotlinx.json.*
 import kotlinx.serialization.json.Json
@@ -13,8 +14,12 @@ internal fun createKTOR() = HttpClient {
             ignoreUnknownKeys = true
         })
     }
+    install(HttpTimeout) {
+        // this socketTimeout can occur w/ okhttp engine when posting larger file
+        socketTimeoutMillis = 600_000 // 10 minutes
+    }
 }
 
-expect internal fun createFileSystem() : FileSystem
+expect internal fun createFileSystem(): FileSystem
 
 
