@@ -8,10 +8,15 @@ import okio.Path.Companion.toOkioPath
 import java.io.File
 
 fun main(args: Array<String>) = runBlocking {
-    println(InfuraIPFS().info.version())
+    require(args.size == 3)
+    val projectId = args[0]
+    val projectSecret = args[1]
+    val filePath = args[2]
+    val ipfs = InfuraIPFS(projectId, projectSecret)
+    println(ipfs.info.version())
     println(
-        InfuraIPFS().add.file(
-            File(args[0]).toOkioPath()
+        ipfs.add.file(
+            File(filePath).toOkioPath()
         ) { uploadProgress: UploadProgress?, addProgress: AddProgress? ->
             uploadProgress?.let { println(it) }
             addProgress?.let { println(it) }

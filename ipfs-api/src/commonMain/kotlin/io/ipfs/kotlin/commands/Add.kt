@@ -114,6 +114,9 @@ class Add(val ipfs: IPFSConnection) {
         val progress = progressListener != null
         val result: List<NamedResponse> =
             ipfs.config.ktorClient.preparePost("${ipfs.config.base_url}add?progress=$progress") {
+                ipfs.config.basicAuthCredentials?.apply {
+                    basicAuth(username, password)
+                }
                 onUpload { bytesSentTotal, contentLength ->
                     val uploadProgress = UploadProgress(bytesSentTotal, contentLength)
                     progressListener?.invoke(uploadProgress, null)

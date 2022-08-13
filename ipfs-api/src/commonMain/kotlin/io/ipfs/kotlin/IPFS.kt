@@ -7,10 +7,17 @@ import io.ipfs.kotlin.model.MessageWithCode
 import io.ktor.client.*
 import okio.FileSystem
 
-data class IPFSConfiguration(val base_url: String = "http://127.0.0.1:5001/api/v0/",
-                             val ktorClient: HttpClient = createKTOR(),
-                             val fileSystem: FileSystem = createFileSystem()
-)
+data class IPFSConfiguration(
+    val base_url: String = "http://127.0.0.1:5001/api/v0/",
+    val ktorClient: HttpClient = createKTOR(),
+    val fileSystem: FileSystem = createFileSystem(),
+    val basicAuthCredentials: BasicAuth? = null
+) {
+    class BasicAuth(
+        val username: String,
+        val password: String
+    )
+}
 
 open class IPFS(configuration: IPFSConfiguration) {
 

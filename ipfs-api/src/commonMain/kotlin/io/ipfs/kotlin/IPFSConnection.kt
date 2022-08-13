@@ -15,6 +15,9 @@ open class IPFSConnection(val config: IPFSConfiguration) {
         val request = HttpRequestBuilder().apply {
             url(config.base_url + cmd)
             contentType(ContentType.Any)
+            config.basicAuthCredentials?.apply {
+                basicAuth(username, password)
+            }
         }
 
         return config.ktorClient.post(request)
