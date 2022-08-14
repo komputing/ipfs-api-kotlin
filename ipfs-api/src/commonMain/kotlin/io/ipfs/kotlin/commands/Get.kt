@@ -30,10 +30,9 @@ class Get(val ipfs: IPFSConnection) {
      * @param hash The hash of the content in base58.
      * @param handler Callback which handle processing the input stream. When the callback return the stream and the request body will be closed.
      */
-    suspend fun catReadChannel(hash: String, handler: (stream: ByteReadChannel) -> Unit): Unit =
+    suspend fun catReadChannel(hash: String): ByteReadChannel =
         ipfs.prepareCallCmd("cat?arg=$hash").execute { httpResponse ->
-            val channel: ByteReadChannel = httpResponse.body()
-            handler(channel)
+            return@execute httpResponse.body<ByteReadChannel>()
         }
 
 }
