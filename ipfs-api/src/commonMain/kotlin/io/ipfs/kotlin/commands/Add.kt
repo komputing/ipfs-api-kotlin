@@ -2,7 +2,6 @@ package io.ipfs.kotlin.commands
 
 import io.ipfs.kotlin.IPFSConnection
 import io.ipfs.kotlin.model.NamedResponse
-import io.ktor.client.call.*
 import io.ktor.client.plugins.*
 import io.ktor.client.request.*
 import io.ktor.client.request.forms.*
@@ -11,14 +10,14 @@ import io.ktor.http.*
 import io.ktor.utils.io.*
 import kotlinx.serialization.decodeFromString
 import kotlinx.serialization.json.Json
-import okio.BufferedSource
 import okio.Path
 
 data class UploadProgress(val bytesSent: Long, val byteSize: Long) {
-    val percentage =  (bytesSent.toDouble() / byteSize.toDouble()) * 100.0
+    val percentage = (bytesSent.toDouble() / byteSize.toDouble()) * 100.0
 }
+
 data class AddProgress(val bytesProcessed: Long, val byteSize: Long) {
-    val percentage =  (bytesProcessed.toDouble() / byteSize.toDouble()) * 100.0
+    val percentage = (bytesProcessed.toDouble() / byteSize.toDouble()) * 100.0
 }
 
 typealias UploadAndAddProgressListener = ((UploadProgress?, AddProgress?) -> Unit)
