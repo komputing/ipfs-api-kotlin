@@ -3,7 +3,6 @@ package io.ipfs.kotlin.commands
 import io.ipfs.kotlin.IPFSConnection
 import io.ktor.client.call.*
 import io.ktor.client.statement.*
-import io.ktor.http.*
 import io.ktor.utils.io.*
 
 class Get(val ipfs: IPFSConnection) {
@@ -31,11 +30,21 @@ class Get(val ipfs: IPFSConnection) {
      * @param hash The hash of the content in base58.
      * @param handler Callback which handle processing the input stream. When the callback return the stream and the request body will be closed.
      */
-    suspend fun catReadChannel(hash: String): ByteReadChannelAndContentLength =
+    suspend fun catReadChannel(hash: String, handler: CatReadChannelHandler) =
         ipfs.prepareCallCmd("cat?arg=$hash").execute { httpResponse ->
-            return@execute ByteReadChannelAndContentLength(httpResponse.body(), httpResponse.headers["X-Content-Length"]!!.toLong())
+            httpResponse.apply {
+                handler(
+                    ByteReadChannelAndContentLength(
+                        httpResponse.body(),
+                        httpResponse.headers["X-Content-Length"]!!.toLong()
+                    )
+                )
+            }
+            return@execute
         }
-
+    
 }
+
+typealias CatReadChannelHandler = suspend HttpResponse.(ByteReadChannelAndContentLength) -> Unit
 
 data class ByteReadChannelAndContentLength(val byteReadChannel: ByteReadChannel, val contentLength: Long)
