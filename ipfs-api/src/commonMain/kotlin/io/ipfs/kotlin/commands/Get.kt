@@ -33,7 +33,7 @@ class Get(val ipfs: IPFSConnection) {
      */
     suspend fun catReadChannel(hash: String): ByteReadChannelAndContentLength =
         ipfs.prepareCallCmd("cat?arg=$hash").execute { httpResponse ->
-            return@execute ByteReadChannelAndContentLength(httpResponse.body(), httpResponse.contentLength()!!)
+            return@execute ByteReadChannelAndContentLength(httpResponse.body(), httpResponse.headers["X-Content-Length"]!!.toLong())
         }
 
 }
