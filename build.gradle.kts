@@ -46,7 +46,7 @@ subprojects {
             "testRuntime"("org.junit.jupiter:junit-jupiter-engine:${Versions.jupiter}")
 
             "testImplementation"("org.jetbrains.kotlin:kotlin-test")
-            "testImplementation"("io.mockk:mockk:1.12.0")
+            "testImplementation"("io.mockk:mockk:1.13.2")
         }
 
 
