@@ -1,4 +1,4 @@
-package io.ipfs.example_cli
+package org.kethereum.example_cli
 
 import io.ipfs.kotlin.IPFS
 import io.ipfs.kotlin.IPFSConfiguration
