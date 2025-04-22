@@ -19,6 +19,7 @@ open class IPFS(configuration: IPFSConfiguration) {
     val get by lazy { Get(connection) }
     val info by lazy { Info(connection) }
     val stats by lazy { Stats(connection) }
+    val swarm by lazy { Swarm(connection) }
     val pins by lazy { Pins(connection) }
     val repo by lazy { Repo(connection) }
     val name by lazy { Name(connection) }
