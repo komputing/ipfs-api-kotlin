@@ -5,7 +5,7 @@ import io.ipfs.kotlin.IPFSConnection
 class Swarm(val ipfs: IPFSConnection) {
 
     fun connect(address: String): Boolean {
-        val resultString = ipfs.callCmd("swarm/connect/$address").use { it.string() }
+        val resultString = ipfs.callCmd("swarm/connect?args=$address").use { it.string() }
         val resultBoolean = resultString.contains(address)
         if (!resultBoolean) {
             ipfs.setErrorByJSON(resultString)
