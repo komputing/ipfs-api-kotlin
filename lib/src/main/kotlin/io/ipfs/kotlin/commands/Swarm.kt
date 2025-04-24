@@ -1,36 +1,32 @@
 package io.ipfs.kotlin.commands
 
+import com.squareup.moshi.JsonAdapter
 import io.ipfs.kotlin.IPFSConnection
+import io.ipfs.kotlin.model.Strings
 
 class Swarm(val ipfs: IPFSConnection) {
 
-    fun connect(address: String): Boolean {
-        val resultString = ipfs.callCmd("swarm/connect?arg=$address").use { it.string() }
-        val resultBoolean = resultString.contains(address)
-        if (!resultBoolean) {
-            ipfs.setErrorByJSON(resultString)
-        }
-        return resultBoolean
+    private val stringsAdapter: JsonAdapter<Strings> by lazy {
+        ipfs.config.moshi.adapter(Strings::class.java)
     }
 
+    fun connect(address: String): KuboResult {
+        val httpResponse = ipfs.executeCmd("swarm/connect?arg=$address")
+        if (httpResponse.isSuccessful) {
+            val result = stringsAdapter.fromJson(httpResponse.body()!!.use {
+                it.string()
+            })
+            return KuboResult.Success(result)
+        } else {
+            ipfs.setErrorByJSON(httpResponse.body()!!.use { responseBody ->
+                responseBody.string()
+            })
+            return KuboResult.Failure(ipfs.lastError?.Message ?: "Unknown error")
+        }
+    }
 }
 
-// success
-// {
-//  "Strings": [
-//    "connect Qma8ddFEQWEU8ijWvdxXm3nxU7oHsRtCykAaVz8WUYhiKn success"
-//  ]
-//}
-
-// curl -X POST "http://127.0.0.1:5001/api/v0/swarm/connect?arg=/ip4/137.184.243.187/tcp/3000/ws/p2p/Qma8ddFEQWEU8ijWvdxXm3nxU7oHsRtCykAaVz8WUYhiKn" | jq .
-// {
-//  "Message": "connect Qma8ddFEQWEU8ijWvdxXm3nxU7oHsRtCykAaVz8WUYhiKn failure: failed to dial: failed to dial Qma8ddFEQWEU8ijWvdxXm3nxU7oHsRtCykAaVz8WUYhiKn: all dials failed\n  * [/ip4/137.184.243.187/tcp/3000/ws] failed to negotiate security protocol: error reading handshake message: EOF",
-//  "Code": 0,
-//  "Type": "error"
-//}
-
-// {
-//  "Message": "lookup _dnsaddr.bitswap.pinata.cloud on [::1]:53: read udp [::1]:61810->[::1]:53: read: connection refused",
-//  "Code": 0,
-//  "Type": "error"
-//}
+sealed class KuboResult {
+    data class Success(val result: Strings) : KuboResult()
+    data class Failure(val errorMessage: String) : KuboResult()
+}

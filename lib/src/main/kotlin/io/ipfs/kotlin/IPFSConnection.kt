@@ -4,6 +4,7 @@ import com.squareup.moshi.JsonAdapter
 import io.ipfs.kotlin.model.MessageWithCode
 import okhttp3.Request
 import okhttp3.RequestBody
+import okhttp3.Response
 import okhttp3.ResponseBody
 
 open class IPFSConnection(val config: IPFSConfiguration) {
@@ -21,6 +22,15 @@ open class IPFSConnection(val config: IPFSConfiguration) {
                 .build()
 
         return config.okHttpClient.newCall(request).execute().body()!!
+    }
+
+    fun executeCmd(cmd: String): Response {
+        val request = Request.Builder()
+            .post(RequestBody.create(null, ""))
+            .url(config.base_url + cmd)
+            .build()
+
+        return config.okHttpClient.newCall(request).execute()
     }
 
     fun setErrorByJSON(jsonString: String) {
