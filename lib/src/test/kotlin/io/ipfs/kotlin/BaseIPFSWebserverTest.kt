@@ -2,8 +2,8 @@ package io.ipfs.kotlin
 
 import io.ipfs.kotlin.defaults.localIPFSConfig
 import okhttp3.mockwebserver.MockWebServer
-import org.junit.After
-import org.junit.Before
+import org.junit.jupiter.api.AfterEach
+import org.junit.jupiter.api.BeforeEach
 
 abstract class BaseIPFSWebserverTest {
 
@@ -12,12 +12,12 @@ abstract class BaseIPFSWebserverTest {
         IPFS(localIPFSConfig.copy(base_url = server.url("").toString()))
     }
 
-    @Before
+    @BeforeEach
     fun runBeforeEveryTest() {
         server.start()
     }
 
-    @After
+    @AfterEach
     fun runAfterEveryTest() {
         server.shutdown()
     }
