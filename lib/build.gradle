@@ -18,11 +18,36 @@ plugins {
 
 
 apply plugin: "kotlin"
-apply plugin: 'maven'
+apply plugin: 'maven-publish'
 apply plugin: 'com.github.ben-manes.versions'
 
 group = 'com.github.ligi'
+version = '0.16.0-SNAPSHOT'
 
+tasks.register('sourceJar', Jar.class) {
+    archiveClassifier.set('sources')
+    from sourceSets.main.allSource
+}
+
+tasks.register('javadocJar', Jar.class) {
+    archiveClassifier.set('javadoc')
+    from javadoc.destinationDir
+    dependsOn javadoc
+}
+
+publishing {
+    publications {
+        maven(MavenPublication) {
+            from components.java
+            artifactId = "ipfs-api-kotlin"
+            artifact(tasks.named('sourceJar').get())
+            artifact(tasks.named('javadocJar').get())
+        }
+    }
+    repositories {
+        mavenLocal()
+    }
+}
 repositories {
     jcenter()
 }
