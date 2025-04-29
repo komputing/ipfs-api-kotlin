@@ -30,11 +30,6 @@ subprojects {
         useJUnitPlatform()
     }
 
-    configure<JavaPluginExtension> {
-        withSourcesJar()
-        withJavadocJar()
-    }
-
     afterEvaluate {
 
         dependencies {
